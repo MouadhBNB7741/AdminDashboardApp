@@ -1,10 +1,10 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { authContext } from "../context/context";
+import { AuthContext } from "../context/context";
 import { type User } from "../types";
 
 export default function Login() {
-  const { login } = useContext(authContext);
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",

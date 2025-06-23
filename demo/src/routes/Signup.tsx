@@ -1,10 +1,11 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { authContext } from "../context/context";
+import { AuthContext, LogContext } from "../context/context";
 import { type User } from "../types";
 
 export default function SignUpPage() {
-  const { login } = useContext(authContext);
+  const { login } = useContext(AuthContext);
+  const { addLog } = useContext(LogContext);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
@@ -35,6 +36,11 @@ export default function SignUpPage() {
     const users = JSON.parse(localStorage.getItem("users")!);
     users.push(newUser);
     localStorage.setItem("users", JSON.stringify(users));
+    addLog({
+      message: "created new user",
+      type: "success",
+      userId: newUser.id,
+    });
     login(newUser, newUser.id);
     navigate("/");
   };

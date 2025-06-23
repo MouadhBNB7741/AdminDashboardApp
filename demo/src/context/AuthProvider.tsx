@@ -1,8 +1,9 @@
-import { type ReactNode, useState, useEffect } from "react";
-import { authContext } from "./context";
+import { type ReactNode, useState, useEffect, useContext } from "react";
+import { AuthContext, LogContext } from "./context";
 import { type User } from "../types";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useCookies } from "react-cookie";
+import LoaderAuth from "../components/utils/LoaderAuth";
 
 interface Props {
   children: ReactNode;
@@ -55,6 +56,7 @@ const AuthProvider = ({ children }: Props) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [cookies, setCookie, removeCookie] = useCookies(["authToken"]);
+  const { addLog } = useContext(LogContext);
 
   useEffect(() => {
     initDB();
@@ -69,7 +71,6 @@ const AuthProvider = ({ children }: Props) => {
 
           const matchedUser = users.find((user) => user.id === token);
 
-          console.log(matchedUser);
           if (!matchedUser) {
             removeCookie("authToken");
             localStorage.removeItem("authToken");
@@ -115,6 +116,7 @@ const AuthProvider = ({ children }: Props) => {
   }, [user, loading, location, navigate]);
 
   const login = async (userData: User, token: string) => {
+    addLog({ message: "tried to log in", type: "info", userId: token });
     setUser(userData);
     setCookie("authToken", token, {
       path: "/",
@@ -131,13 +133,13 @@ const AuthProvider = ({ children }: Props) => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoaderAuth />;
   }
 
   return (
-    <authContext.Provider value={{ user, setUser, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout }}>
       {children}
-    </authContext.Provider>
+    </AuthContext.Provider>
   );
 };
 

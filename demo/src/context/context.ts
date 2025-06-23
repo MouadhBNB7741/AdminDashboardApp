@@ -1,6 +1,6 @@
 // context.ts
 import { createContext } from "react";
-import { type User } from "../types";
+import { type User, type Log } from "../types";
 
 export interface AuthContextType {
   user: User | null;
@@ -9,9 +9,21 @@ export interface AuthContextType {
   logout: () => void;
 }
 
-export const authContext = createContext<AuthContextType>({
+export const AuthContext = createContext<AuthContextType>({
   user: null,
   setUser: () => {},
   login: () => {},
   logout: () => {},
+});
+
+interface LogContextType {
+  logs: Log[];
+  addLog: (log: Omit<Log, "id" | "timestamp">) => void;
+  clearLogs: () => void;
+}
+
+export const LogContext = createContext<LogContextType>({
+  logs: [],
+  addLog: () => {},
+  clearLogs: () => {},
 });
