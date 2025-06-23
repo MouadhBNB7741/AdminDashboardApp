@@ -8,36 +8,46 @@ interface Props {
   children: ReactNode;
 }
 
-const users: User[] = [
-  {
-    id: "1",
-    mail: "mouadh@gmail.com",
-    password: "Mouadh7741",
-    name: "mouadh",
-    type: "admin",
-  },
-  {
-    id: "2",
-    mail: "benbahi@gmail.com",
-    password: "Benbahi7741",
-    name: "benbahi",
-    type: "customer",
-  },
-  {
-    id: "3",
-    mail: "azz@gmail.com",
-    password: "Azzed7741",
-    name: "azz",
-    type: "delivery",
-  },
-  {
-    id: "4",
-    mail: "houad@gmail.com",
-    password: "Houad7741",
-    name: "houad",
-    type: "supplier",
-  },
-];
+function initDB() {
+  // settings the users
+  if (localStorage.getItem("users")) {
+    return;
+  }
+
+  localStorage.setItem(
+    "users",
+    JSON.stringify([
+      {
+        id: "1",
+        mail: "mouadh@gmail.com",
+        password: "Mouadh7741",
+        name: "mouadh",
+        type: "admin",
+      },
+      {
+        id: "2",
+        mail: "benbahi@gmail.com",
+        password: "Benbahi7741",
+        name: "benbahi",
+        type: "customer",
+      },
+      {
+        id: "3",
+        mail: "azz@gmail.com",
+        password: "Azzed7741",
+        name: "azz",
+        type: "delivery",
+      },
+      {
+        id: "4",
+        mail: "houad@gmail.com",
+        password: "Houad7741",
+        name: "houad",
+        type: "supplier",
+      },
+    ])
+  );
+}
 
 const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<User | null>(null);
@@ -47,10 +57,17 @@ const AuthProvider = ({ children }: Props) => {
   const [cookies, setCookie, removeCookie] = useCookies(["authToken"]);
 
   useEffect(() => {
+    initDB();
+  }, []);
+
+  useEffect(() => {
     const checkAuth = async () => {
       try {
         const token = cookies.authToken;
         if (token) {
+          const users = JSON.parse(
+            localStorage.getItem("users")!
+          ) as Array<User>;
           const { id, mail, name, password, type } = users.filter(
             (user) => user.id === token
           )[0];
