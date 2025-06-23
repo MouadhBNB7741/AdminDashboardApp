@@ -63,21 +63,22 @@ const AuthProvider = ({ children }: Props) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = cookies.authToken;
+        const token = String(cookies.authToken);
         if (token) {
-          const users = JSON.parse(
-            localStorage.getItem("users")!
-          ) as Array<User>;
-          const { id, mail, name, password, type } = users.filter(
-            (user) => user.id === token
-          )[0];
+          const users = JSON.parse(localStorage.getItem("users")!) as User[];
 
-          if (!id || !mail || !name) {
+          const matchedUser = users.find((user) => user.id === token);
+
+          console.log(matchedUser);
+          if (!matchedUser) {
             removeCookie("authToken");
+            localStorage.removeItem("authToken");
             setUser(null);
             setLoading(false);
             return;
           }
+
+          const { id, mail, name, password, type } = matchedUser;
           setUser({
             id,
             mail,
@@ -115,7 +116,12 @@ const AuthProvider = ({ children }: Props) => {
 
   const login = async (userData: User, token: string) => {
     setUser(userData);
-    setCookie("authToken", token, { path: "/", maxAge: 60 * 60 * 24 * 7 });
+    setCookie("authToken", token, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+      secure: false,
+      sameSite: "lax" as const,
+    });
   };
 
   const logout = async () => {
