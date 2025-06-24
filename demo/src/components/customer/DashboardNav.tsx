@@ -1,4 +1,10 @@
-import React from "react";
+import {
+  useContext,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
+import { AuthContext } from "../../context/context";
 
 interface Props {
   activeTab: string;
@@ -8,59 +14,186 @@ interface Props {
 }
 
 export default function DashBoardNav({ activeTab, setActiveTab }: Props) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { logout } = useContext(AuthContext);
+
   return (
-    <nav className="w-64 bg-gray-800 p-6 h-screen fixed">
-      <h2 className="text-xl font-semibold mb-6">Customer Dashboard</h2>
-      <ul className="space-y-3">
-        <li>
-          <button
-            onClick={() => setActiveTab("products")}
-            className={`w-full text-left px-4 py-2 rounded-lg transition ${
-              activeTab === "products"
-                ? "bg-blue-600 text-white"
-                : "hover:bg-gray-700"
-            }`}
+    <>
+      {/* Desktop Sidebar - Hidden on mobile */}
+      <nav className="hidden md:block w-64 bg-gray-800 p-6 h-screen fixed shadow-lg border-r border-teal-700">
+        <h2 className="text-xl font-semibold mb-6 text-teal-400 flex items-center gap-2">
+          🏥 Dashboard
+        </h2>
+        <ul className="space-y-3">
+          <NavItem
+            label="Browse Products"
+            icon="🧬"
+            tab="products"
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
+          <NavItem
+            label="Shopping Cart"
+            icon="🛒"
+            tab="cart"
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
+          <NavItem
+            label="Order History"
+            icon="📄"
+            tab="orders"
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
+          <NavItem
+            label="Settings"
+            icon="⚙️"
+            tab="settings"
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
+        </ul>
+        <LogoutButton logout={logout} />
+      </nav>
+
+      {/* Hamburger Button - Mobile Only */}
+      {!isMobileMenuOpen && (
+        <button
+          onClick={() => setIsMobileMenuOpen(true)}
+          className="md:hidden fixed top-3 left-4 z-50 p-3 bg-gray-800 rounded text-white text-xl font-bold"
+          aria-label="Open menu"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
           >
-            Browse Products
-          </button>
-        </li>
-        <li>
-          <button
-            onClick={() => setActiveTab("cart")}
-            className={`w-full text-left px-4 py-2 rounded-lg transition ${
-              activeTab === "cart"
-                ? "bg-blue-600 text-white"
-                : "hover:bg-gray-700"
-            }`}
-          >
-            Shopping Cart
-          </button>
-        </li>
-        <li>
-          <button
-            onClick={() => setActiveTab("orders")}
-            className={`w-full text-left px-4 py-2 rounded-lg transition ${
-              activeTab === "orders"
-                ? "bg-blue-600 text-white"
-                : "hover:bg-gray-700"
-            }`}
-          >
-            Order History
-          </button>
-        </li>
-        <li>
-          <button
-            onClick={() => setActiveTab("settings")}
-            className={`w-full text-left px-4 py-2 rounded-lg transition ${
-              activeTab === "settings"
-                ? "bg-blue-600 text-white"
-                : "hover:bg-gray-700"
-            }`}
-          >
-            Settings
-          </button>
-        </li>
-      </ul>
-    </nav>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
+      )}
+
+      {/* Slide-in Mobile Sidebar */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-40 flex">
+          <div className="fixed inset-y-0 left-0 w-64 bg-gray-800 p-6 shadow-lg transform transition-transform duration-300 ease-in-out translate-x-0">
+            <h2 className="text-xl font-semibold mb-6 text-teal-400 flex items-center gap-2">
+              🏥 Dashboard
+            </h2>
+            <ul className="space-y-3">
+              <NavItem
+                label="Browse Products"
+                icon="🧬"
+                tab="products"
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                setIsMobileMenuOpen={setIsMobileMenuOpen}
+              />
+              <NavItem
+                label="Shopping Cart"
+                icon="🛒"
+                tab="cart"
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                setIsMobileMenuOpen={setIsMobileMenuOpen}
+              />
+              <NavItem
+                label="Order History"
+                icon="📄"
+                tab="orders"
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                setIsMobileMenuOpen={setIsMobileMenuOpen}
+              />
+              <NavItem
+                label="Settings"
+                icon="⚙️"
+                tab="settings"
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                setIsMobileMenuOpen={setIsMobileMenuOpen}
+              />
+            </ul>
+            <LogoutButton logout={logout} />
+
+            {/* Close Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="absolute top-4 right-4 text-white text-xl"
+            >
+              &times;
+            </button>
+          </div>
+
+          {/* Overlay when mobile menu is open */}
+          <div
+            className="flex-1 bg-black bg-opacity-50"
+            onClick={() => setIsMobileMenuOpen(false)}
+          ></div>
+        </div>
+      )}
+    </>
+  );
+}
+
+interface NavItemProps {
+  label: string;
+  icon: string;
+  tab: "products" | "cart" | "orders" | "settings";
+  activeTab: string;
+  setActiveTab: Dispatch<
+    SetStateAction<"products" | "cart" | "orders" | "settings">
+  >;
+  setIsMobileMenuOpen?: Dispatch<SetStateAction<boolean>>;
+}
+
+function NavItem({
+  label,
+  icon,
+  tab,
+  activeTab,
+  setActiveTab,
+  setIsMobileMenuOpen,
+}: NavItemProps) {
+  return (
+    <li>
+      <button
+        onClick={() => {
+          setActiveTab(tab);
+          if (setIsMobileMenuOpen !== undefined) {
+            setIsMobileMenuOpen(false);
+          }
+        }}
+        className={`w-full text-left px-4 py-2 rounded-lg transition ${
+          activeTab === tab ? "bg-teal-600 text-white" : "hover:bg-gray-700"
+        }`}
+      >
+        <span className="flex items-center gap-2">
+          {icon} {label}
+        </span>
+      </button>
+    </li>
+  );
+}
+
+// Logout Button
+function LogoutButton({ logout }: { logout: () => void }) {
+  return (
+    <div className="mt-auto pt-6 border-t border-gray-700">
+      <button
+        onClick={logout}
+        className="w-full flex items-center justify-center gap-2 text-red-400 hover:text-red-300 font-medium transition"
+      >
+        🔐 Logout
+      </button>
+    </div>
   );
 }

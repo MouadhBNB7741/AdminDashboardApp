@@ -18,15 +18,17 @@ export default function ProductList({ products, addToCart }: Props) {
             alt={product.name_en}
             className="w-full h-40 object-cover"
           />
+
           <div className="p-4">
             <h3 className="text-lg font-semibold">{product.name_en}</h3>
             <p className="text-gray-400">{product.short_description_en}</p>
-            <p className="mt-2 font-bold text-blue-400">
+            <p className="mt-2 font-bold text-teal-400">
               {product.price?.toFixed(2)} DZD
             </p>
+
             <button
               onClick={() => addToCart(product)}
-              className="mt-3 w-full bg-blue-600 hover:bg-blue-700 py-2 rounded text-white"
+              className="mt-3 w-full bg-teal-600 hover:bg-teal-700 py-2 rounded text-white"
             >
               Add to Cart
             </button>

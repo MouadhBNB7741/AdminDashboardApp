@@ -26,25 +26,28 @@ export default function CartSummary({
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h2 className="text-xl font-semibold mb-4">Your Cart</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center text-teal-400">
+        Your Cart
+      </h2>
+
       {cart.length === 0 ? (
-        <p className="text-gray-400">No items in cart.</p>
+        <p className="text-gray-400 text-center py-6">No items in cart.</p>
       ) : (
         <>
           <ul className="space-y-4">
             {cart.map(({ product, quantity }) => (
               <li
                 key={product.id}
-                className="flex items-center justify-between bg-gray-800 p-4 rounded"
+                className="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow border border-teal-600"
               >
                 <div className="flex items-center space-x-4">
                   <img
                     src={product.image}
                     alt={product.name_en}
-                    className="w-12 h-12 object-cover rounded"
+                    className="w-16 h-16 object-cover rounded"
                   />
                   <div>
-                    <h4>{product.name_en}</h4>
+                    <h4 className="font-semibold">{product.name_en}</h4>
                     <p className="text-sm text-gray-400">
                       {product.price?.toFixed(2)} DZD
                     </p>
@@ -53,20 +56,20 @@ export default function CartSummary({
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => decreaseQuantity(product.id)}
-                    className="px-2 py-1 bg-gray-700 rounded"
+                    className="px-3 py-1 bg-gray-700 rounded hover:bg-gray-600"
                   >
                     -
                   </button>
-                  <span>{quantity}</span>
+                  <span className="text-lg font-medium">{quantity}</span>
                   <button
                     onClick={() => increaseQuantity(product.id)}
-                    className="px-2 py-1 bg-gray-700 rounded"
+                    className="px-3 py-1 bg-gray-700 rounded hover:bg-gray-600"
                   >
                     +
                   </button>
                   <button
                     onClick={() => removeFromCart(product.id)}
-                    className="ml-2 text-red-400"
+                    className="ml-2 text-red-400 hover:text-red-300"
                   >
                     🗑️
                   </button>
@@ -74,13 +77,14 @@ export default function CartSummary({
               </li>
             ))}
           </ul>
-          <div className="mt-6 text-right">
-            <p className="text-lg font-bold">
+
+          <div className="mt-8 text-right">
+            <p className="text-xl font-bold text-teal-400">
               Total: {cartTotal.toFixed(2)} DZD
             </p>
             <button
               onClick={checkout}
-              className="mt-2 w-full bg-green-600 hover:bg-green-700 py-2 rounded text-white"
+              className="mt-4 w-full bg-green-600 hover:bg-green-700 py-3 rounded text-white font-semibold transition"
             >
               Place Order
             </button>

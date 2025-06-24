@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { type CustomerProfile } from "../../types";
+import { AuthContext } from "../../context/context";
 
 interface Props {
   profile: CustomerProfile;
@@ -8,6 +9,7 @@ interface Props {
 
 export default function ProfileSettings({ profile, setProfile }: Props) {
   const [isEditing, setIsEditing] = useState(false);
+  const { user } = useContext(AuthContext);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -22,35 +24,33 @@ export default function ProfileSettings({ profile, setProfile }: Props) {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-gray-800 p-6 rounded-lg">
-      <h2 className="text-xl font-semibold mb-4">Profile Settings</h2>
+    <div className="max-w-2xl mx-auto bg-gray-800 p-8 rounded-xl shadow-lg border border-teal-600 transition-all duration-300">
+      <h2 className="text-2xl font-bold mb-6 text-center text-teal-400">
+        Profile Settings
+      </h2>
 
-      {/* User ID (Read-only) */}
-      <div className="mb-4">
-        <label className="block text-gray-400 mb-1">User ID</label>
+      <div className="mb-5">
+        <label className="block text-gray-400 mb-2">User ID</label>
         <input
           type="text"
           value={profile.id}
           disabled
-          className="w-full bg-gray-700 border border-gray-600 p-2 rounded text-white"
+          className="w-full bg-gray-700 border border-gray-600 p-3 rounded text-white"
         />
       </div>
 
-      {/* Name */}
-      <div className="mb-4">
-        <label className="block text-gray-400 mb-1">Full Name</label>
+      <div className="mb-5">
+        <label className="block text-gray-400 mb-2">Full Name</label>
         <input
           type="text"
-          name="name"
-          value={profile.id}
+          value={user?.name || "N/A"}
           disabled
-          className="w-full bg-gray-700 border border-gray-600 p-2 rounded text-white"
+          className="w-full bg-gray-700 border border-gray-600 p-3 rounded text-white"
         />
       </div>
 
-      {/* Date of Birth */}
-      <div className="mb-4">
-        <label className="block text-gray-400 mb-1">Date of Birth</label>
+      <div className="mb-5">
+        <label className="block text-gray-400 mb-2">Date of Birth</label>
         <input
           type="date"
           name="date_of_birth"
@@ -61,9 +61,8 @@ export default function ProfileSettings({ profile, setProfile }: Props) {
         />
       </div>
 
-      {/* Gender */}
-      <div className="mb-4">
-        <label className="block text-gray-400 mb-1">Gender</label>
+      <div className="mb-5">
+        <label className="block text-gray-400 mb-2">Gender</label>
         <select
           name="gender"
           value={profile.gender || ""}
@@ -74,65 +73,59 @@ export default function ProfileSettings({ profile, setProfile }: Props) {
           <option value="">Select Gender</option>
           <option value="male">Male</option>
           <option value="female">Female</option>
-          <option value="other">Other</option>
         </select>
       </div>
 
-      {/* National ID */}
-      <div className="mb-4">
-        <label className="block text-gray-400 mb-1">National ID</label>
+      <div className="mb-5">
+        <label className="block text-gray-400 mb-2">National ID</label>
         <input
           type="text"
           name="national_id"
           value={profile.national_id || ""}
           onChange={handleChange}
           disabled={!isEditing}
-          className="w-full bg-gray-700 border border-gray-600 p-2 rounded text-white"
+          className="w-full bg-gray-700 border border-gray-600 p-3 rounded text-white"
         />
       </div>
 
-      {/* Profession */}
-      <div className="mb-4">
-        <label className="block text-gray-400 mb-1">Profession</label>
+      <div className="mb-5">
+        <label className="block text-gray-400 mb-2">Profession</label>
         <input
           type="text"
           name="profession"
           value={profile.profession || ""}
           onChange={handleChange}
           disabled={!isEditing}
-          className="w-full bg-gray-700 border border-gray-600 p-2 rounded text-white"
+          className="w-full bg-gray-700 border border-gray-600 p-3 rounded text-white"
         />
       </div>
 
-      {/* Medical License */}
-      <div className="mb-4">
-        <label className="block text-gray-400 mb-1">Medical License</label>
+      <div className="mb-5">
+        <label className="block text-gray-400 mb-2">Medical License</label>
         <input
           type="text"
           name="medical_license"
           value={profile.medical_license || ""}
           onChange={handleChange}
           disabled={!isEditing}
-          className="w-full bg-gray-700 border border-gray-600 p-2 rounded text-white"
+          className="w-full bg-gray-700 border border-gray-600 p-3 rounded text-white"
         />
       </div>
 
-      {/* Organization Name */}
-      <div className="mb-4">
-        <label className="block text-gray-400 mb-1">Organization Name</label>
+      <div className="mb-5">
+        <label className="block text-gray-400 mb-2">Organization Name</label>
         <input
           type="text"
           name="organization_name"
           value={profile.organization_name || ""}
           onChange={handleChange}
           disabled={!isEditing}
-          className="w-full bg-gray-700 border border-gray-600 p-2 rounded text-white"
+          className="w-full bg-gray-700 border border-gray-600 p-3 rounded text-white"
         />
       </div>
 
-      {/* Organization Type */}
-      <div className="mb-4">
-        <label className="block text-gray-400 mb-1">Organization Type</label>
+      <div className="mb-6">
+        <label className="block text-gray-400 mb-2">Organization Type</label>
         <select
           name="organization_type"
           value={profile.organization_type || ""}
@@ -148,29 +141,25 @@ export default function ProfileSettings({ profile, setProfile }: Props) {
         </select>
       </div>
 
-      {/* Buttons */}
       {isEditing ? (
-        <div className="flex gap-3">
+        <div className="flex gap-3 mt-6">
           <button
-            type="button"
             onClick={handleSave}
-            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded"
+            className="bg-teal-600 hover:bg-teal-700 px-6 py-2 rounded w-full transition"
           >
             Save
           </button>
           <button
-            type="button"
             onClick={() => setIsEditing(false)}
-            className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded"
+            className="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded w-full transition"
           >
             Cancel
           </button>
         </div>
       ) : (
         <button
-          type="button"
           onClick={() => setIsEditing(true)}
-          className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded"
+          className="bg-teal-600 hover:bg-teal-700 px-6 py-2 rounded w-full mt-6 transition"
         >
           Edit Profile
         </button>

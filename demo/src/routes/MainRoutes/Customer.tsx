@@ -8,14 +8,12 @@ import { type CustomerProfile, type Product } from "../../types";
 import { AuthContext } from "../../context/context";
 
 export default function CustomerDashboard() {
-  // === STATE ===
   const [activeTab, setActiveTab] = useState<
     "products" | "cart" | "orders" | "settings"
   >("products");
 
   const { user } = useContext(AuthContext);
 
-  // Mock Customer Profile
   const [profile, setProfile] = useState<CustomerProfile>({
     id: 1,
     user_id: parseInt(user!.id),
@@ -28,7 +26,6 @@ export default function CustomerDashboard() {
     organization_type: "hospital",
   });
 
-  // Mock Products
   const [products] = useState<Product[]>([
     {
       id: 1,
@@ -68,12 +65,10 @@ export default function CustomerDashboard() {
     },
   ]);
 
-  // Shopping Cart
   const [cart, setCart] = useState<{ product: Product; quantity: number }[]>(
     []
   );
 
-  // Orders (empty for now)
   const [orders] = useState<
     {
       id: number | string;
@@ -81,9 +76,33 @@ export default function CustomerDashboard() {
       items: string[];
       total: number;
     }[]
-  >([]);
+  >([
+    {
+      id: 5,
+      date: Date.now().toString(),
+      items: ["manaPotion", "shield"],
+      total: 4500,
+    },
+    {
+      id: 6,
+      date: Date.now().toString(),
+      items: ["manaPotion", "shield"],
+      total: 4500,
+    },
+    {
+      id: 7,
+      date: Date.now().toString(),
+      items: ["manaPotion", "shield"],
+      total: 4500,
+    },
+    {
+      id: 8,
+      date: Date.now().toString(),
+      items: ["manaPotion", "shield"],
+      total: 4500,
+    },
+  ]);
 
-  // Handlers
   const addToCart = (product: Product) => {
     const existing = cart.find((item) => item.product.id === product.id);
     if (existing) {
@@ -139,24 +158,22 @@ export default function CustomerDashboard() {
       items: cart.map((item) => item.product.name_en),
     };
 
-    // In real app: POST to API
     alert(`Order placed: ${newOrder.id}`);
     setCart([]);
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex">
-      {/* Sidebar */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-950 to-teal-900 text-white flex">
       <CustomerNav activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Main Content */}
-      <main className="flex-1 p-8 overflow-auto ml-64">
-        <h1 className="text-2xl font-bold mb-6">Welcome Back, {user!.name}!</h1>
+      <main className="flex-1 p-4 md:p-8 overflow-auto md:ml-64 bg-gray-900">
+        <h1 className="flex text-xl font-bold mb-8 text-teal-400 w-full justify-center items-center pt-2 md:text-3xl">
+          Welcome Back, {user!.name}
+        </h1>
 
         {activeTab === "products" && (
           <ProductList products={products} addToCart={addToCart} />
         )}
-
         {activeTab === "cart" && (
           <CartSummary
             cart={cart}
@@ -167,9 +184,7 @@ export default function CustomerDashboard() {
             checkout={checkout}
           />
         )}
-
         {activeTab === "orders" && <OrderHistory orders={orders} />}
-
         {activeTab === "settings" && (
           <ProfileSettings profile={profile} setProfile={setProfile} />
         )}
