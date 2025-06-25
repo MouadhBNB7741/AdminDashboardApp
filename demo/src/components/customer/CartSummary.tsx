@@ -1,11 +1,7 @@
-import React from "react";
 import { type Product } from "../../types";
 
 interface Props {
   cart: { product: Product; quantity: number }[];
-  setCart: React.Dispatch<
-    React.SetStateAction<{ product: Product; quantity: number }[]>
-  >;
   increaseQuantity: (productId: number) => void;
   decreaseQuantity: (productId: number) => void;
   removeFromCart: (productId: number) => void;
@@ -38,7 +34,7 @@ export default function CartSummary({
             {cart.map(({ product, quantity }) => (
               <li
                 key={product.id}
-                className="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow border border-teal-600"
+                className="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow border border-teal-600 transition hover:shadow-teal-500/20"
               >
                 <div className="flex items-center space-x-4">
                   <img
@@ -77,7 +73,6 @@ export default function CartSummary({
               </li>
             ))}
           </ul>
-
           <div className="mt-8 text-right">
             <p className="text-xl font-bold text-teal-400">
               Total: {cartTotal.toFixed(2)} DZD

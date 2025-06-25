@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "../context/context";
 import { useNavigate } from "react-router-dom";
 import Admin from "./MainRoutes/Admin";
@@ -10,8 +10,15 @@ function Main() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!user) {
+      navigate("/log-in", { replace: true });
+    }
+  }, [user, navigate]);
+
+  // Show nothing until auth check completes
   if (!user) {
-    navigate("/log-in");
+    return null;
   }
 
   switch (user?.type) {
