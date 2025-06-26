@@ -8,41 +8,41 @@ import { AuthContext } from "../../context/context";
 
 interface Props {
   activeTab: string;
-  setActiveTab: React.Dispatch<
-    React.SetStateAction<"products" | "cart" | "orders" | "settings">
+  setActiveTab: Dispatch<
+    SetStateAction<"products" | "orders" | "inventory" | "settings">
   >;
 }
 
-export default function DashBoardNav({ activeTab, setActiveTab }: Props) {
+export default function SupplierNav({ activeTab, setActiveTab }: Props) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { logout } = useContext(AuthContext);
 
   return (
     <>
-      {/* Desktop Sidebar - Hidden on mobile */}
+      {/* Desktop Sidebar */}
       <nav className="hidden md:block w-64 bg-gray-800 p-6 h-screen fixed shadow-lg border-r border-teal-700">
         <h2 className="text-xl font-semibold mb-6 text-teal-400 flex items-center gap-2">
-          🏥 Dashboard
+          🏭 Dashboard
         </h2>
         <ul className="space-y-3 pb-6">
           <NavItem
-            label="Browse Products"
+            label="My Products"
             icon="🧬"
             tab="products"
             activeTab={activeTab}
             setActiveTab={setActiveTab}
           />
           <NavItem
-            label="Shopping Cart"
-            icon="🛒"
-            tab="cart"
+            label="Orders"
+            icon="📦"
+            tab="orders"
             activeTab={activeTab}
             setActiveTab={setActiveTab}
           />
           <NavItem
-            label="Order History"
-            icon="📄"
-            tab="orders"
+            label="Inventory"
+            icon="📊"
+            tab="inventory"
             activeTab={activeTab}
             setActiveTab={setActiveTab}
           />
@@ -57,7 +57,6 @@ export default function DashBoardNav({ activeTab, setActiveTab }: Props) {
         <LogoutButton logout={logout} />
       </nav>
 
-      {/* Hamburger Button - Mobile Only */}
       {!isMobileMenuOpen && (
         <button
           onClick={() => setIsMobileMenuOpen(true)}
@@ -81,16 +80,16 @@ export default function DashBoardNav({ activeTab, setActiveTab }: Props) {
         </button>
       )}
 
-      {/* Slide-in Mobile Sidebar */}
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 flex">
-          <div className="fixed inset-y-0 left-0 w-64 bg-gray-800 p-6 shadow-lg transform transition-transform duration-300 ease-in-out translate-x-0">
+          <div className="fixed inset-y-0 left-0 w-64 bg-gray-800 p-6 shadow-lg transform transition-transform duration-300 translate-x-0">
             <h2 className="text-xl font-semibold mb-6 text-teal-400 flex items-center gap-2">
-              🏥 Dashboard
+              🏭 Dashboard
             </h2>
             <ul className="space-y-3 pb-6">
               <NavItem
-                label="Browse Products"
+                label="My Products"
                 icon="🧬"
                 tab="products"
                 activeTab={activeTab}
@@ -98,17 +97,17 @@ export default function DashBoardNav({ activeTab, setActiveTab }: Props) {
                 setIsMobileMenuOpen={setIsMobileMenuOpen}
               />
               <NavItem
-                label="Shopping Cart"
-                icon="🛒"
-                tab="cart"
+                label="Orders"
+                icon="📦"
+                tab="orders"
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 setIsMobileMenuOpen={setIsMobileMenuOpen}
               />
               <NavItem
-                label="Order History"
-                icon="📄"
-                tab="orders"
+                label="Inventory"
+                icon="📊"
+                tab="inventory"
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 setIsMobileMenuOpen={setIsMobileMenuOpen}
@@ -123,17 +122,13 @@ export default function DashBoardNav({ activeTab, setActiveTab }: Props) {
               />
             </ul>
             <LogoutButton logout={logout} />
-
-            {/* Close Button */}
             <button
               onClick={() => setIsMobileMenuOpen(false)}
               className="absolute top-4 right-4 text-white text-xl"
             >
-              &times;
+              ×
             </button>
           </div>
-
-          {/* Overlay when mobile menu is open */}
           <div
             className="flex-1 bg-black bg-opacity-50"
             onClick={() => setIsMobileMenuOpen(false)}
@@ -147,10 +142,10 @@ export default function DashBoardNav({ activeTab, setActiveTab }: Props) {
 interface NavItemProps {
   label: string;
   icon: string;
-  tab: "products" | "cart" | "orders" | "settings";
+  tab: "products" | "orders" | "inventory" | "settings";
   activeTab: string;
   setActiveTab: Dispatch<
-    SetStateAction<"products" | "cart" | "orders" | "settings">
+    SetStateAction<"products" | "orders" | "inventory" | "settings">
   >;
   setIsMobileMenuOpen?: Dispatch<SetStateAction<boolean>>;
 }
@@ -168,9 +163,7 @@ function NavItem({
       <button
         onClick={() => {
           setActiveTab(tab);
-          if (setIsMobileMenuOpen !== undefined) {
-            setIsMobileMenuOpen(false);
-          }
+          if (setIsMobileMenuOpen) setIsMobileMenuOpen(false);
         }}
         className={`w-full text-left px-4 py-2 rounded-lg transition ${
           activeTab === tab ? "bg-teal-600 text-white" : "hover:bg-gray-700"
@@ -184,7 +177,6 @@ function NavItem({
   );
 }
 
-// Logout Button
 function LogoutButton({ logout }: { logout: () => void }) {
   return (
     <div className="mt-auto pt-6 border-t border-gray-700">

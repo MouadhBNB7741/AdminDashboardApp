@@ -1,55 +1,89 @@
-import {
-  useContext,
-  useState,
-  type Dispatch,
-  type SetStateAction,
-} from "react";
+import React, { useContext, useState } from "react";
 import { AuthContext } from "../../context/context";
 
-interface Props {
+interface NavItemProps {
+  label: string;
+  icon: string;
+  tab: "users" | "logs" | "settings" | "orders" | "products";
   activeTab: string;
   setActiveTab: React.Dispatch<
-    React.SetStateAction<"products" | "cart" | "orders" | "settings">
+    React.SetStateAction<"users" | "logs" | "settings" | "orders" | "products">
   >;
+  setIsMobileMenuOpen?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function DashBoardNav({ activeTab, setActiveTab }: Props) {
+function NavItem({
+  label,
+  icon,
+  tab,
+  activeTab,
+  setActiveTab,
+  setIsMobileMenuOpen,
+}: NavItemProps) {
+  return (
+    <li>
+      <button
+        onClick={() => {
+          setActiveTab(tab);
+          if (setIsMobileMenuOpen) setIsMobileMenuOpen(false);
+        }}
+        className={`w-full text-left px-4 py-2 rounded-lg transition ${
+          activeTab === tab ? "bg-teal-600 text-white" : "hover:bg-gray-700"
+        }`}
+      >
+        <span className="flex items-center gap-2">
+          {icon} {label}
+        </span>
+      </button>
+    </li>
+  );
+}
+
+export default function AdminNav({
+  activeTab,
+  setActiveTab,
+}: {
+  activeTab: string;
+  setActiveTab: React.Dispatch<
+    React.SetStateAction<"users" | "logs" | "settings" | "orders" | "products">
+  >;
+}) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { logout } = useContext(AuthContext);
 
   return (
     <>
-      {/* Desktop Sidebar - Hidden on mobile */}
+      {/* Desktop Sidebar */}
       <nav className="hidden md:block w-64 bg-gray-800 p-6 h-screen fixed shadow-lg border-r border-teal-700">
         <h2 className="text-xl font-semibold mb-6 text-teal-400 flex items-center gap-2">
-          🏥 Dashboard
+          👤 Admin Dashboard
         </h2>
         <ul className="space-y-3 pb-6">
           <NavItem
-            label="Browse Products"
-            icon="🧬"
+            label="Manage Users"
+            icon="👥"
+            tab="users"
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
+          <NavItem
+            label="View Logs"
+            icon="📄"
+            tab="logs"
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
+          <NavItem
+            label="Manage Products"
+            icon="📦"
             tab="products"
             activeTab={activeTab}
             setActiveTab={setActiveTab}
           />
           <NavItem
-            label="Shopping Cart"
-            icon="🛒"
-            tab="cart"
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-          />
-          <NavItem
-            label="Order History"
-            icon="📄"
+            label="Manage Orders"
+            icon="🧾"
             tab="orders"
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-          />
-          <NavItem
-            label="Settings"
-            icon="⚙️"
-            tab="settings"
             activeTab={activeTab}
             setActiveTab={setActiveTab}
           />
@@ -57,7 +91,6 @@ export default function DashBoardNav({ activeTab, setActiveTab }: Props) {
         <LogoutButton logout={logout} />
       </nav>
 
-      {/* Hamburger Button - Mobile Only */}
       {!isMobileMenuOpen && (
         <button
           onClick={() => setIsMobileMenuOpen(true)}
@@ -81,45 +114,41 @@ export default function DashBoardNav({ activeTab, setActiveTab }: Props) {
         </button>
       )}
 
-      {/* Slide-in Mobile Sidebar */}
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 flex">
-          <div className="fixed inset-y-0 left-0 w-64 bg-gray-800 p-6 shadow-lg transform transition-transform duration-300 ease-in-out translate-x-0">
+          <div className="fixed inset-y-0 left-0 w-64 bg-gray-800 p-6 shadow-lg transform translate-x-0">
             <h2 className="text-xl font-semibold mb-6 text-teal-400 flex items-center gap-2">
-              🏥 Dashboard
+              👤 Admin Dashboard
             </h2>
             <ul className="space-y-3 pb-6">
               <NavItem
-                label="Browse Products"
-                icon="🧬"
+                label="Manage Users"
+                icon="👥"
+                tab="users"
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+              />
+              <NavItem
+                label="View Logs"
+                icon="📄"
+                tab="logs"
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+              />
+              <NavItem
+                label="Manage Products"
+                icon="📦"
                 tab="products"
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
-                setIsMobileMenuOpen={setIsMobileMenuOpen}
               />
               <NavItem
-                label="Shopping Cart"
-                icon="🛒"
-                tab="cart"
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                setIsMobileMenuOpen={setIsMobileMenuOpen}
-              />
-              <NavItem
-                label="Order History"
-                icon="📄"
+                label="Manage Orders"
+                icon="🧾"
                 tab="orders"
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
-                setIsMobileMenuOpen={setIsMobileMenuOpen}
-              />
-              <NavItem
-                label="Settings"
-                icon="⚙️"
-                tab="settings"
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                setIsMobileMenuOpen={setIsMobileMenuOpen}
               />
             </ul>
             <LogoutButton logout={logout} />
@@ -132,8 +161,6 @@ export default function DashBoardNav({ activeTab, setActiveTab }: Props) {
               &times;
             </button>
           </div>
-
-          {/* Overlay when mobile menu is open */}
           <div
             className="flex-1 bg-black bg-opacity-50"
             onClick={() => setIsMobileMenuOpen(false)}
@@ -144,47 +171,6 @@ export default function DashBoardNav({ activeTab, setActiveTab }: Props) {
   );
 }
 
-interface NavItemProps {
-  label: string;
-  icon: string;
-  tab: "products" | "cart" | "orders" | "settings";
-  activeTab: string;
-  setActiveTab: Dispatch<
-    SetStateAction<"products" | "cart" | "orders" | "settings">
-  >;
-  setIsMobileMenuOpen?: Dispatch<SetStateAction<boolean>>;
-}
-
-function NavItem({
-  label,
-  icon,
-  tab,
-  activeTab,
-  setActiveTab,
-  setIsMobileMenuOpen,
-}: NavItemProps) {
-  return (
-    <li>
-      <button
-        onClick={() => {
-          setActiveTab(tab);
-          if (setIsMobileMenuOpen !== undefined) {
-            setIsMobileMenuOpen(false);
-          }
-        }}
-        className={`w-full text-left px-4 py-2 rounded-lg transition ${
-          activeTab === tab ? "bg-teal-600 text-white" : "hover:bg-gray-700"
-        }`}
-      >
-        <span className="flex items-center gap-2">
-          {icon} {label}
-        </span>
-      </button>
-    </li>
-  );
-}
-
-// Logout Button
 function LogoutButton({ logout }: { logout: () => void }) {
   return (
     <div className="mt-auto pt-6 border-t border-gray-700">

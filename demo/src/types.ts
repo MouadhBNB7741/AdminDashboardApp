@@ -3,7 +3,7 @@ export interface User {
   name: string;
   mail: string;
   password: string;
-  type: "customer" | "supplier" | "admin" | "delivery";
+  type: string;
 }
 
 //supplier howa li ymanagi shit
@@ -147,4 +147,34 @@ interface Product {
   updated_at?: string;
   price: number;
   image: string;
+}
+
+export interface Delivery {
+  id: number | string;
+  order_id: number | string;
+  customer_name: string;
+  destination: string;
+  status: "pending" | "in-progress" | "delivered";
+  payment_status: "paid" | "unpaid";
+  assigned_to?: number; // user ID of delivery person
+}
+
+export interface BaseProfile {
+  id: number;
+  user_id: number | string;
+  date_of_birth: string;
+  gender: "male" | "female" | "other";
+  national_id: string;
+}
+
+// Delivery-specific
+export interface DeliveryProfile extends BaseProfile {
+  vehicle_type: string;
+  license_plate: string;
+}
+
+// Supplier-specific
+export interface SupplierProfile extends BaseProfile {
+  company_name: string;
+  business_license: string;
 }
