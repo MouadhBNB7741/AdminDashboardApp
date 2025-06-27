@@ -1,7 +1,11 @@
 # Demo Web application using react
 
 how to run the app:
-1-Clone the repo
-2-cd to the demo directory
-3-in terminal run npm i or npm install
-4-run npm run dev command to see the app // runs on localhost:5173
+  -  Clone the repo
+  -  cd to the demo directory
+  - in terminal run npm i or npm install
+  - run npm run dev command to see the app // runs on localhost:5173
+To do : 
+ -  Develop API.
+ -  Prepare env for mobile app.
+ -  Learn how to host database.
