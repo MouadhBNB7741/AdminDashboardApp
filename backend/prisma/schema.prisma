@@ -58,6 +58,11 @@ model User {
   SupportTicketMessage SupportTicketMessage[] //user who left the message
   ChatSessionsAsUser LiveChatSession[] @relation("ChatUser")
   ChatSessionsAsAgent LiveChatSession[] @relation("ChatAgent")
+  LiveChatMessage LiveChatMessage[] @relation("ChatMessageSender")
+  UserActivityLog UserActivityLog[]
+  SearchQuery SearchQuery[]
+  PageView PageView[]
+  AdminActivityLog AdminActivityLog[]
 }
 
 enum UserType {
@@ -363,6 +368,7 @@ model Product {
   ProductReview ProductReview[] //can have review or reviews
   PrescriptionItemOriginal PrescriptionItem[] @relation("OriginalProduct") //original id
   PrescriptionItemMatched PrescriptionItem[] @relation("MatchedProduct") //matched id
+  SearchQuery SearchQuery[]
 }
 
 enum PrescriptionType {
@@ -854,10 +860,262 @@ model LiveChatSession {
   @@index([user_id], name: "idx_user_id_chat")
   @@index([agent_id], name: "idx_agent_id_chat")
   @@index([status], name: "idx_status_chat")
+  LiveChatMessage LiveChatMessage[]
 }
 
 enum ChatStatus {
   WAITING
   ACTIVE
   ENDED
+}
+
+model LiveChatMessage {
+  id           BigInt     @id @default(autoincrement())
+  session_id   BigInt
+  sender_id    BigInt
+  message      String
+  message_type LiveChatMessageType @default(TEXT)
+  attachment_url String?
+  created_at   DateTime   @default(now())
+
+  // Relations
+  session      LiveChatSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  sender       User        @relation("ChatMessageSender", fields: [sender_id], references: [id], onDelete: Cascade)
+
+  @@index([session_id], name: "idx_session_id")
+  @@index([sender_id], name: "idx_sender_id_live_chat_message")
+  @@index([created_at], name: "idx_created_at_live_chat_message")
+}
+
+enum LiveChatMessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
+}
+
+model UserActivityLog {
+  id            BigInt     @id @default(autoincrement())
+  user_id       BigInt?
+  session_id    String
+  activity_type ActivityType
+  entity_type   String?      // e.g. 'product', 'order'
+  entity_id     BigInt?
+  details       Json?
+  ip_address    String?
+  user_agent    String?
+  referer       String?
+  created_at    DateTime   @default(now())
+
+  // Relation to User (optional since user can be anonymous)
+  user          User?      @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@index([user_id], name: "idx_user_id_user_activity_log")
+  @@index([activity_type], name: "idx_activity_type")
+  @@index([entity_type, entity_id], name: "idx_entity")
+  @@index([created_at], name: "idx_created_at_user_activity_log")
+}
+
+enum ActivityType {
+  login
+  logout
+  view_product
+  add_to_cart
+  remove_from_cart
+  search
+  place_order
+  payment
+  review
+}
+
+model SearchQuery {
+  id                  BigInt     @id @default(autoincrement())
+  user_id             BigInt?
+  query               String
+  results_count       Int        @default(0)
+  filters_applied     Json?
+  clicked_product_id  BigInt?
+  ip_address          String?
+  created_at          DateTime   @default(now())
+
+  // Relations
+  user                User?      @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  clicked_product     Product?   @relation(fields: [clicked_product_id], references: [id], onDelete: SetNull)
+
+  @@index([user_id], name: "idx_user_id_search")
+  @@index([created_at], name: "idx_created_at_search")
+}
+
+model PageView {
+  id           BigInt     @id @default(autoincrement())
+  user_id      BigInt?
+  session_id   String
+  page_type    PageType
+  page_url     String
+  page_title   String?
+  entity_id    BigInt?
+  time_spent   Int?         // in seconds
+  bounce       Boolean      @default(false)
+  ip_address   String?
+  user_agent   String?
+  referer      String?
+  created_at   DateTime     @default(now())
+
+  // Relation
+  user         User?        @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@index([user_id], name: "idx_user_id_page_view")
+  @@index([session_id], name: "idx_session_id_page_view")
+  @@index([page_type], name: "idx_page_type")
+  @@index([entity_id], name: "idx_entity_id")
+  @@index([created_at], name: "idx_created_at_page_view")
+}
+
+enum PageType {
+  home
+  category
+  product
+  search
+  cart
+  checkout
+  profile
+  other
+}
+
+model SystemSetting {
+  id            Int        @id @default(autoincrement())
+  setting_key   String     @unique
+  setting_value String?    
+  setting_type  SettingType @default(STRING)
+  category      String      @default("general")
+  description   String?
+  is_public     Boolean     @default(false)
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
+
+  @@index([setting_key], name: "idx_key")
+  @@index([category], name: "idx_category")
+  @@index([is_public], name: "idx_public")
+}
+
+enum SettingType {
+  STRING
+  INTEGER
+  FLOAT
+  BOOLEAN
+  JSON
+}
+
+model Tax {
+  id             Int       @id @default(autoincrement())
+  name           String
+  type           TaxType
+  rate           Decimal
+  applicable_to  TaxApplicableTo @default(ALL)
+  category_ids   Json?
+  product_ids    Json?
+  wilaya_ids     Json?      // Apply to specific wilayas
+  min_amount     Decimal    @default(0.00)
+  is_active      Boolean    @default(true)
+  created_at     DateTime   @default(now())
+
+  @@index([type], name: "idx_tax_type")
+  @@index([is_active], name: "idx_tax_active")
+}
+
+enum TaxType {
+  percentage
+  fixed
+}
+
+enum TaxApplicableTo {
+  ALL
+  CATEGORY
+  PRODUCT
+}
+
+model EmailQueue {
+  id            BigInt      @id @default(autoincrement())
+  to_email      String
+  to_name       String?
+  from_email    String?
+  from_name     String?
+  subject       String
+  body_html     String?
+  body_text     String?
+  attachments   Json?
+  priority      EmailPriority @default(medium)
+  max_retries   Int           @default(3)
+  retry_count   Int           @default(0)
+  status        EmailStatus   @default(pending)
+  error_message String?
+  sent_at       DateTime?
+  created_at    DateTime      @default(now())
+
+  @@index([status], name: "idx_status_email_queue")
+  @@index([priority], name: "idx_priority")
+  @@index([created_at], name: "idx_created_at_email_queue")
+}
+
+enum EmailPriority {
+  low
+  medium
+  high
+}
+
+enum EmailStatus {
+  pending
+  sent
+  failed
+}
+
+model SmsQueue {
+  id             BigInt      @id @default(autoincrement())
+  phone_number   String
+  message        String
+  priority       SmsPriority @default(MEDIUM)
+  max_retries    Int           @default(3)
+  retry_count    Int           @default(0)
+  status         SmsStatus     @default(PENDING)
+  error_message  String?
+  sent_at        DateTime?
+  created_at     DateTime      @default(now())
+
+  @@index([phone_number], name: "idx_phone_sms")
+  @@index([status], name: "idx_status_sms")
+  @@index([priority], name: "idx_priority_sms")
+  @@index([created_at], name: "idx_created_at_sms")
+}
+
+enum SmsPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum SmsStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model AdminActivityLog {
+  id          BigInt      @id @default(autoincrement())
+  admin_id    BigInt
+  action      String
+  entity_type String?
+  entity_id   BigInt?
+  old_values  Json?
+  new_values  Json?
+  ip_address  String?
+  user_agent  String?
+  created_at  DateTime    @default(now())
+
+  // Relation to User (admin)
+  admin       User        @relation(fields: [admin_id], references: [id], onDelete: Cascade)
+
+  @@index([admin_id], name: "idx_admin_id")
+  @@index([action], name: "idx_action")
+  @@index([entity_type, entity_id], name: "idx_entity_admin_activity_log")
+  @@index([created_at], name: "idx_created_at_admin_activity_log")
 }
