@@ -40,6 +40,8 @@ model User {
   User2FA User2FA[]  //relation with user2fa
   PasswordResetToken PasswordResetToken[] //relation in reset password
   CustomerProfile CustomerProfile[] //customer relation
+  SupplierProfile SupplierProfile[] //supplier
+  UserAddress UserAddress[] //address of the user
 }
 
 enum UserType {
@@ -121,4 +123,114 @@ enum OrganizationType {
   clinic
   pharmacy
   individual
+}
+
+model SupplierProfile {
+  id                     BigInt     @id @default(autoincrement())
+  user_id                BigInt     @unique
+  company_name           String
+  company_registration   String
+  tax_number             String
+  medical_license        String?
+  business_type          BusinessType?
+  verification_status    VerificationStatus @default(pending)
+  verification_documents Json?
+  annual_revenue         Decimal?
+  established_year       Int?
+  employee_count         Int?
+  warehouse_capacity     Int?
+  subscription_type      SubscriptionType @default(basic)
+  subscription_expires_at DateTime?
+  commission_rate        Decimal @default(5.00)
+  created_at             DateTime @default(now())
+  updated_at             DateTime @updatedAt
+
+  // Relation to User
+  user                   User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([verification_status], name: "idx_verification_status")
+  @@index([business_type], name: "idx_business_type")
+}
+
+enum BusinessType {
+  manufacturer
+  distributor
+  retailer
+  importer
+}
+
+enum VerificationStatus {
+  pending
+  approved
+  rejected
+}
+
+enum SubscriptionType {
+  basic
+  premium
+  enterprise
+}
+
+model Wilaya {
+  id           Int      @id @default(autoincrement())
+  code         String   @unique
+  name_ar      String
+  name_fr      String
+  name_en      String
+  delivery_fee Decimal  @default(0.0)
+  is_active    Boolean  @default(true)
+
+  @@index([code], name: "idx_wilaya_code")
+  Commune Commune[]  //communs of the wilaya
+  UserAddress UserAddress[] //addresses in the wilaya
+}
+
+model Commune {
+  id                    Int       @id @default(autoincrement())
+  wilaya_id             Int       
+  code                  String    
+  name_ar               String    
+  name_fr               String    
+  name_en               String    
+  postal_code           String?   
+  additional_delivery_fee Decimal  @default(0.0)
+  is_active             Boolean   @default(true)
+
+  // Relation to Wilaya
+  wilaya                Wilaya    @relation(fields: [wilaya_id], references: [id])
+
+  @@index([wilaya_id], name: "idx_wilaya_id")
+  @@index([code], name: "idx_commune_code")
+}
+
+model UserAddress {
+  id              BigInt     @id @default(autoincrement())
+  user_id         BigInt
+  wilaya_id       Int
+  commune_id      Int
+  address_line1   String
+  address_line2   String?
+  postal_code     String?
+  landmark        String?
+  phone           String?
+  is_default      Boolean    @default(false)
+  address_type    AddressType @default(HOME)
+  recipient_name  String?
+  notes           String?
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+
+  // Relations
+  user            User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  wilaya          Wilaya     @relation(fields: [wilaya_id], references: [id])
+  commune         Commune    @relation(fields: [commune_id], references: [id])
+
+  @@index([user_id], name: "idx_user_id")
+  @@index([wilaya_id, commune_id], name: "idx_wilaya_commune")
+}
+
+enum AddressType {
+  HOME
+  WORK
+  OTHER
 }
