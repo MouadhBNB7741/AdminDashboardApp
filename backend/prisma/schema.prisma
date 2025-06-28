@@ -43,6 +43,8 @@ model User {
   SupplierProfile SupplierProfile[] //supplier
   UserAddress UserAddress[] //address of the user
   Product Product[] //only done by a supplier
+  ProductReview ProductReview[] //the user who reviewed the product
+  Order Order[] //his orders
 }
 
 enum UserType {
@@ -229,6 +231,7 @@ model UserAddress {
 
   @@index([user_id], name: "idx_user_address_id")
   @@index([wilaya_id, commune_id], name: "idx_wilaya_commune")
+  Order Order[] //orders that been to this address
 }
 
 enum AddressType {
@@ -344,6 +347,7 @@ model Product {
   //full text index search can be done on queries
   //not supported by postgresql
   ProductImage ProductImage[] //product have an image
+  ProductReview ProductReview[] //can have review or reviews
 }
 
 enum PrescriptionType {
@@ -398,11 +402,10 @@ model ReviewImage {
 
 model ProductReview {
   id                  BigInt     @id @default(autoincrement())
-  product_id          BigInt
   user_id             BigInt
-  order_id            BigInt?
-  rating              Int         // Simulating TINYINT with range validation in code
-  title               String?
+  product_id          BigInt
+  order_id            BigInt?    // Optional field
+  rating              Int
   review_text         String?
   pros                String?
   cons                String?
@@ -417,19 +420,93 @@ model ProductReview {
   // Relations
   product             Product     @relation(fields: [product_id], references: [id], onDelete: Cascade)
   user                User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  order               Order?      @relation(fields: [order_id], references: [id], onDelete: SetNull)
+  order               Order?       @relation(fields: [order_id], references: [id], onDelete: SetNull)
 
-  @@index([product_id], name: "idx_product_id")
-  @@index([user_id], name: "idx_user_id")
+  @@index([product_id], name: "idx_product_id_review")
+  @@index([user_id], name: "idx_user_id_review")
   @@index([rating], name: "idx_rating")
-  @@index([status], name: "idx_status")
+  @@index([status], name: "idx_status_review")
   @@index([verified_purchase], name: "idx_verified_purchase")
 
-  @@unique([user_id, product_id, order_id?], name: "unique_user_product_order")
+  @@unique([user_id, product_id, order_id], name: "unique_user_product_order")
+  ReviewImage ReviewImage[] //an image left on the review
 }
 
 enum ReviewStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+model Order {
+  id                     BigInt      @id @default(autoincrement())
+  order_number           String      @unique
+  customer_id            BigInt
+  status                 OrderStatus @default(PENDING)
+  payment_status         PaymentStatus @default(PENDING)
+  subtotal               Decimal
+  tax_amount             Decimal     @default(0.00)
+  discount_amount        Decimal     @default(0.00)
+  delivery_fee           Decimal     @default(0.00)
+  total_amount           Decimal
+  currency               String      @default("DZD")
+  
+  // Delivery Information
+  delivery_method        DeliveryMethod @default(STANDARD)
+  delivery_address_id    BigInt?
+  delivery_notes         String?
+  estimated_delivery_date DateTime?
+  actual_delivery_date   DateTime?
+
+  // Prescription Information
+  has_prescription_items Boolean     @default(false)
+  prescription_verified  Boolean     @default(false)
+  prescription_notes     String?
+
+  // Order Notes
+  customer_notes         String?
+  admin_notes            String?
+
+  // Timestamps
+  created_at             DateTime    @default(now())
+  updated_at             DateTime    @updatedAt
+  confirmed_at           DateTime?
+  shipped_at             DateTime?
+  delivered_at           DateTime?
+  cancelled_at           DateTime?
+
+  // Relations
+  customer               User        @relation(fields: [customer_id], references: [id])
+  delivery_address       UserAddress? @relation(fields: [delivery_address_id], references: [id])
+
+  @@index([customer_id], name: "idx_customer_id")
+  @@index([order_number], name: "idx_order_number")
+  @@index([status], name: "idx_status_order")
+  @@index([payment_status], name: "idx_payment_status")
+  @@index([created_at], name: "idx_created_at")
+  ProductReview ProductReview[] //have product reviews
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIAL
+}
+
+enum DeliveryMethod {
+  STANDARD
+  EXPRESS
+  PICKUP
 }
