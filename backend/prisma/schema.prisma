@@ -63,6 +63,8 @@ model User {
   SearchQuery SearchQuery[]
   PageView PageView[]
   AdminActivityLog AdminActivityLog[]
+  ErrorLog ErrorLog[]
+  ProductInventory ProductInventory[]
 }
 
 enum UserType {
@@ -369,6 +371,9 @@ model Product {
   PrescriptionItemOriginal PrescriptionItem[] @relation("OriginalProduct") //original id
   PrescriptionItemMatched PrescriptionItem[] @relation("MatchedProduct") //matched id
   SearchQuery SearchQuery[]
+  ProductVariant ProductVariant[]
+  ProductPricing ProductPricing[]
+  ProductInventory ProductInventory[]
 }
 
 enum PrescriptionType {
@@ -1118,4 +1123,122 @@ model AdminActivityLog {
   @@index([action], name: "idx_action")
   @@index([entity_type, entity_id], name: "idx_entity_admin_activity_log")
   @@index([created_at], name: "idx_created_at_admin_activity_log")
+}
+
+model ErrorLog {
+  id             BigInt     @id @default(autoincrement())
+  error_level    ErrorLevel
+  error_message  String
+  error_code     String?
+  file_path      String?
+  line_number    Int?
+  stack_trace    String?
+  user_id        BigInt?
+  request_url    String?
+  request_method String?
+  request_data   Json?
+  ip_address     String?
+  user_agent     String?
+  created_at     DateTime   @default(now())
+
+  // Relation to User (optional)
+  user           User?      @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@index([error_level], name: "idx_error_level")
+  @@index([error_code], name: "idx_error_code")
+  @@index([user_id], name: "idx_user_id_error_log")
+  @@index([created_at], name: "idx_created_at_error_log")
+}
+
+enum ErrorLevel {
+  debug
+  info
+  warning
+  error
+  critical
+}
+
+model ProductVariant {
+  id               BigInt     @id @default(autoincrement())
+  product_id       BigInt
+  variant_name     String
+  variant_value    String
+  sku              String?    @unique()
+  barcode          String?
+  price_adjustment Decimal    @default(0.00)
+  weight_adjustment Decimal   @default(0.00)
+  stock_quantity   Int        @default(0)
+  is_active        Boolean    @default(true)
+  created_at       DateTime   @default(now())
+
+  // Relation to Product
+  product          Product    @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@index([product_id], name: "idx_product_id_product_variant")
+  @@index([sku], name: "idx_sku_product_variant")
+  @@unique([product_id, variant_name, variant_value], name: "unique_product_variant")
+  ProductPricing ProductPricing[]
+  ProductInventory ProductInventory[]
+}
+
+model ProductPricing {
+  id               BigInt      @id @default(autoincrement())
+  product_id       BigInt
+  variant_id       BigInt?
+  customer_type    CustomerType @default(RETAIL)
+  min_quantity     Int          @default(1)
+  max_quantity     Int?
+  base_price       Decimal
+  sale_price       Decimal?
+  cost_price       Decimal?
+  margin_percentage Decimal?
+  currency         String       @default("DZD")
+  valid_from       DateTime     @default(now())
+  valid_until      DateTime?
+  is_active        Boolean      @default(true)
+  created_at       DateTime     @default(now())
+
+  // Relations
+  product          Product      @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  variant          ProductVariant? @relation(fields: [variant_id], references: [id], onDelete: Cascade)
+
+  @@index([product_id], name: "idx_product_id_pricing")
+  @@index([variant_id], name: "idx_variant_id_pricing")
+  @@index([customer_type], name: "idx_customer_type_pricing")
+  @@index([is_active], name: "idx_pricing_active")
+}
+
+enum CustomerType {
+  RETAIL
+  WHOLESALE
+  HOSPITAL
+  PHARMACY
+}
+
+model ProductInventory {
+  id                  BigInt     @id @default(autoincrement())
+  product_id          BigInt
+  variant_id          BigInt?
+  supplier_id         BigInt
+  stock_quantity      Int        @default(0)
+  reserved_quantity   Int        @default(0)
+  available_quantity  Int?       // Calculated field – not directly stored in DB
+  min_stock_level     Int        @default(0)
+  max_stock_level     Int?
+  reorder_point       Int        @default(0)
+  location            String?
+  batch_number        String?
+  expiry_date         DateTime?
+  manufacturing_date  DateTime?
+  last_updated        DateTime   @updatedAt
+
+  // Relations
+  product             Product    @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  variant             ProductVariant? @relation(fields: [variant_id], references: [id], onDelete: SetNull)
+  supplier            User       @relation(fields: [supplier_id], references: [id], onDelete: Cascade)
+
+  @@index([product_id, variant_id], name: "idx_product_variant")
+  @@index([supplier_id], name: "idx_supplier_id_product_inventory")
+  @@index([stock_quantity], name: "idx_stock_quantity")
+  @@index([expiry_date], name: "idx_expiry_date")
 }
