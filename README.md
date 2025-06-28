@@ -20,4 +20,4 @@
 
 - Develop API.
 - Prepare env for mobile app.
-- Learn how to host database.
+- Learn how to host database. //for now my solution is prisma it works with multiple dbs and automated so no worry
