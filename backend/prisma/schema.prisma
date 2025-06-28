@@ -65,6 +65,8 @@ model User {
   AdminActivityLog AdminActivityLog[]
   ErrorLog ErrorLog[]
   ProductInventory ProductInventory[]
+  ShoppingCart ShoppingCart[]
+  OrderItem OrderItem[]
 }
 
 enum UserType {
@@ -374,6 +376,8 @@ model Product {
   ProductVariant ProductVariant[]
   ProductPricing ProductPricing[]
   ProductInventory ProductInventory[]
+  ShoppingCart ShoppingCart[]
+  OrderItem OrderItem[]
 }
 
 enum PrescriptionType {
@@ -515,6 +519,10 @@ model Order {
   SupplierReview SupplierReview[] //what supplier says
   Prescription Prescription[] //to specifie witch products
   SupportTicket SupportTicket[] //order's ticket
+  OrderItem OrderItem[]
+  PaymentMethod PaymentMethod[]
+  Payment Payment[]
+  DeliveryCompany DeliveryCompany[]
 }
 
 enum OrderStatus {
@@ -1179,6 +1187,8 @@ model ProductVariant {
   @@unique([product_id, variant_name, variant_value], name: "unique_product_variant")
   ProductPricing ProductPricing[]
   ProductInventory ProductInventory[]
+  ShoppingCart ShoppingCart[]
+  OrderItem OrderItem[]
 }
 
 model ProductPricing {
@@ -1241,4 +1251,197 @@ model ProductInventory {
   @@index([supplier_id], name: "idx_supplier_id_product_inventory")
   @@index([stock_quantity], name: "idx_stock_quantity")
   @@index([expiry_date], name: "idx_expiry_date")
+}
+
+model ShoppingCart {
+  id           BigInt     @id @default(autoincrement())
+  user_id      BigInt
+  product_id   BigInt
+  variant_id   BigInt?
+  quantity     Int          @default(1)
+  price        Decimal
+  notes        String?
+  created_at   DateTime     @default(now())
+  updated_at   DateTime     @updatedAt
+
+  // Relations
+  user         User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  product      Product      @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  variant      ProductVariant? @relation(fields: [variant_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id], name: "idx_user_id_cart")
+  @@index([product_id], name: "idx_product_id_cart")
+  @@unique([user_id, product_id, variant_id], name: "unique_cart_item")
+}
+
+model OrderItem {
+  id                   BigInt      @id @default(autoincrement())
+  order_id             BigInt
+  product_id           BigInt
+  variant_id           BigInt?
+  supplier_id          BigInt
+  product_name         String
+  variant_name         String?
+  sku                  String?
+  quantity             Int
+  unit_price           Decimal
+  total_price          Decimal
+  cost_price           Decimal?
+  commission_rate      Decimal?
+  commission_amount    Decimal?
+
+  // Prescription requirement
+  requires_prescription Boolean     @default(false)
+  prescription_provided Boolean   @default(false)
+  prescription_url     String?
+
+  // Supplier fulfillment
+  supplier_status      SupplierOrderStatus @default(PENDING)
+  supplier_notes       String?
+
+  created_at           DateTime    @default(now())
+  updated_at           DateTime    @updatedAt
+
+  // Relations
+  order                Order       @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product              Product     @relation(fields: [product_id], references: [id])
+  variant              ProductVariant? @relation(fields: [variant_id], references: [id])
+  supplier             User        @relation(fields: [supplier_id], references: [id])
+
+  @@index([order_id], name: "idx_order_id_order_item")
+  @@index([product_id], name: "idx_product_id_order_item")
+  @@index([supplier_id], name: "idx_supplier_id_order_item")
+  @@index([supplier_status], name: "idx_supplier_status")
+}
+
+enum SupplierOrderStatus {
+  PENDING
+  ACCEPTED
+  PREPARING
+  READY
+  SHIPPED
+  REJECTED
+}
+
+model PaymentMethod {
+  id                      Int         @id @default(autoincrement())
+  name                    String
+  code                    String      @unique
+  type                    PaymentType
+  provider                String?
+  is_active               Boolean     @default(true)
+  processing_fee_percentage Decimal   @default(0.00)
+  processing_fee_fixed    Decimal     @default(0.00)
+  min_amount              Decimal     @default(0.00)
+  max_amount              Decimal?
+  logo_url                String?
+  description_ar          String?
+  description_fr          String?
+  description_en          String?
+  sort_order              Int         @default(0)
+
+  // Relations
+  orders                  Order[]     // Optional: if needed to track which method was used in orders
+
+  @@index([code], name: "idx_code")
+  @@index([type], name: "idx_type")
+  @@index([is_active], name: "idx_payment_method_active")
+  Payment Payment[]
+}
+
+enum PaymentType {
+  card
+  bank_transfer
+  cash_on_delivery
+  digital_wallet
+}
+
+model Payment {
+  id                    BigInt     @id @default(autoincrement())
+  payment_reference     String     @unique
+  order_id              BigInt
+  payment_method_id     Int
+  amount                Decimal
+  currency              String      @default("DZD")
+  status                PaymentStatus @default(PENDING)
+  
+  // Gateway Information
+  gateway_transaction_id String?
+  gateway_response      Json?
+  
+  // Payment Details
+  payment_details       Json?
+  
+  // Fees
+  processing_fee        Decimal    @default(0.00)
+  
+  // Timestamps
+  created_at            DateTime   @default(now())
+  updated_at            DateTime   @updatedAt
+  processed_at          DateTime?
+
+  // Relations
+  order                 Order      @relation(fields: [order_id], references: [id])
+  payment_method        PaymentMethod @relation(fields: [payment_method_id], references: [id])
+
+  @@index([order_id], name: "idx_order_id_payment")
+  @@index([payment_reference], name: "idx_payment_reference")
+  @@index([status], name: "idx_status_payment")
+  @@index([gateway_transaction_id], name: "idx_gateway_transaction_id")
+}
+
+model DeliveryCompany { 
+  id                    Int        @id @default(autoincrement())
+  name                  String     // Company name (e.g., DHL, Aramex)
+  contact_email         String?
+  contact_phone         String?
+  api_endpoint          String?
+  api_key               String?
+  tracking_url_template String?
+  is_active             Boolean    @default(true)
+  base_fee              Decimal    @default(0.00)
+  per_kg_fee            Decimal    @default(0.00)
+  insurance_percentage  Decimal    @default(0.00)
+  logo_url              String?
+  created_at            DateTime   @default(now())
+
+  // Relations
+  deliveries            Order[]    // Orders assigned to this delivery company
+
+  @@index([name], name: "idx_name_delivery_company")
+  @@index([is_active], name: "idx_delivery_company_active")
+}
+
+model DeliveryPersonnel {
+  id                    BigInt     @id @default(autoincrement())
+  user_id               BigInt
+  delivery_company_id   Int?
+  employee_id           String?
+  vehicle_type          VehicleType @default(MOTORCYCLE)
+  vehicle_registration  String?
+  license_number        String?
+  phone                 String?
+  is_active             Boolean    @default(true)
+  current_latitude      Decimal?
+  current_longitude     Decimal?
+  last_location_update  DateTime?
+  rating                Decimal    @default(0.00)
+  total_deliveries      Int        @default(0)
+  created_at            DateTime   @default(now())
+  updated_at            DateTime   @updatedAt
+
+  // Relations
+  user                  User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  delivery_company      DeliveryCompany? @relation(fields: [delivery_company_id], references: [id])
+
+  @@index([delivery_company_id], name: "idx_delivery_company")
+  @@index([is_active], name: "idx_delivery_personnel_active")
+  @@unique([user_id], name: "unique_user_delivery_personnel")
+}
+
+enum VehicleType {
+  MOTORCYCLE
+  CAR
+  VAN
+  TRUCK
 }
