@@ -46,8 +46,10 @@ model User {
   ProductReview ProductReview[] //the user who reviewed the product
   Order Order[] //his orders
   ReviewVote ReviewVote[] //user who voted
-  SupplierReview SupplierReview[] @relation("Supplier")//supplier who is reviewed
-  CustomerReview SupplierReview[] @relation("Customer")//customer who reviewed the supplier
+  supplier_reviews SupplierReview[] @relation("Customer") // User who reviewed the supplier
+  suppliers_reviews SupplierReview[] @relation("Supplier") // Reviews where this user is the supplier being reviewed
+  PrescriptionOwner Prescription[] @relation("PrescriptionOwner") //owner of Prescription
+  PrescriptionVerifier Prescription[] @relation("PrescriptionVerifier") //verifier of Prescription
 }
 
 enum UserType {
@@ -351,6 +353,8 @@ model Product {
   //not supported by postgresql
   ProductImage ProductImage[] //product have an image
   ProductReview ProductReview[] //can have review or reviews
+  PrescriptionItemOriginal PrescriptionItem[] @relation("OriginalProduct") //original id
+  PrescriptionItemMatched PrescriptionItem[] @relation("MatchedProduct") //matched id
 }
 
 enum PrescriptionType {
@@ -490,6 +494,7 @@ model Order {
   @@index([created_at], name: "idx_created_at")
   ProductReview ProductReview[] //have product reviews
   SupplierReview SupplierReview[] //what supplier says
+  Prescription Prescription[] //to specifie witch products
 }
 
 enum OrderStatus {
@@ -559,4 +564,78 @@ model SupplierReview {
   @@index([customer_id], name: "idx_customer_id_supplier_rev")
   @@index([rating], name: "idx_rating_supplier_rev")
   @@unique([customer_id, supplier_id, order_id], name: "unique_customer_supplier_order")
+}
+
+model Prescription {
+  id                    BigInt      @id @default(autoincrement())
+  user_id               BigInt
+  order_id              BigInt?
+  prescription_number   String?
+  doctor_name           String?
+  doctor_license        String?
+  hospital_clinic       String?
+  issue_date            DateTime?
+  expiry_date           DateTime?
+
+  // File Information
+  file_url              String
+  file_type             String?
+  file_size             Int?
+
+  // Verification Status
+  verification_status   VerificationStatus @default(pending)
+  verified_by           BigInt?
+  verified_at           DateTime?
+  verification_notes    String?
+
+  // Patient Information
+  patient_name          String?
+  patient_age           Int?
+  patient_weight        Decimal?
+  patient_allergies     String?
+
+  created_at            DateTime    @default(now())
+  updated_at            DateTime    @updatedAt
+
+  // Relations
+  order                 Order?     @relation(fields: [order_id], references: [id], onDelete: SetNull)
+  owner            User        @relation("PrescriptionOwner", fields: [user_id], references: [id])
+  verifier         User?       @relation("PrescriptionVerifier", fields: [verified_by], references: [id])
+
+  @@index([user_id], name: "idx_user_id_prescription")
+  @@index([order_id], name: "idx_order_id")
+  @@index([verification_status], name: "idx_verification_status_prescription")
+  @@index([prescription_number], name: "idx_prescription_number")
+  PrescriptionItem PrescriptionItem[] //items of perceptions
+}
+
+model PrescriptionItem {
+  id                   BigInt     @id @default(autoincrement())
+  prescription_id      BigInt
+  product_id           BigInt?
+  medication_name      String
+  dosage               String?
+  frequency            String?
+  duration             String?
+  quantity_prescribed  Int?
+  instructions         String?
+  substitution_allowed Boolean    @default(true)
+  matched_product_id   BigInt?
+  status               PrescriptionItemStatus @default(PENDING)
+
+  // Relations
+  prescription         Prescription @relation(fields: [prescription_id], references: [id], onDelete: Cascade)
+  product              Product?   @relation("OriginalProduct", fields: [product_id], references: [id], onDelete: SetNull)
+  matched_product      Product?   @relation("MatchedProduct", fields: [matched_product_id], references: [id], onDelete: SetNull)
+
+  @@index([prescription_id], name: "idx_prescription_id")
+  @@index([product_id], name: "idx_product_id_prescription_item")
+  @@index([status], name: "idx_status_prescription_item")
+}
+
+enum PrescriptionItemStatus {
+  PENDING
+  MATCHED
+  NOT_AVAILABLE
+  SUBSTITUTED
 }
