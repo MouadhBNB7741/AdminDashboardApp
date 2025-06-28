@@ -45,6 +45,9 @@ model User {
   Product Product[] //only done by a supplier
   ProductReview ProductReview[] //the user who reviewed the product
   Order Order[] //his orders
+  ReviewVote ReviewVote[] //user who voted
+  SupplierReview SupplierReview[] @relation("Supplier")//supplier who is reviewed
+  CustomerReview SupplierReview[] @relation("Customer")//customer who reviewed the supplier
 }
 
 enum UserType {
@@ -430,6 +433,7 @@ model ProductReview {
 
   @@unique([user_id, product_id, order_id], name: "unique_user_product_order")
   ReviewImage ReviewImage[] //an image left on the review
+  ReviewVote ReviewVote[] //the votes in product reviews
 }
 
 enum ReviewStatus {
@@ -485,6 +489,7 @@ model Order {
   @@index([payment_status], name: "idx_payment_status")
   @@index([created_at], name: "idx_created_at")
   ProductReview ProductReview[] //have product reviews
+  SupplierReview SupplierReview[] //what supplier says
 }
 
 enum OrderStatus {
@@ -509,4 +514,49 @@ enum DeliveryMethod {
   STANDARD
   EXPRESS
   PICKUP
+}
+
+model ReviewVote {
+  id          BigInt     @id @default(autoincrement())
+  review_id   BigInt
+  user_id     BigInt
+  vote_type   VoteType
+  created_at  DateTime   @default(now())
+
+  // Relations
+  review      ProductReview @relation(fields: [review_id], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, review_id], name: "unique_user_review_vote")
+  @@index([review_id], name: "idx_review_id_review_vote")
+  @@index([user_id], name: "idx_user_id_review_vote")
+}
+
+enum VoteType {
+  helpful
+  not_helpful
+}
+
+model SupplierReview {
+  id                   BigInt     @id @default(autoincrement())
+  supplier_id          BigInt
+  customer_id          BigInt
+  order_id             BigInt?
+  rating               Int         // Simulating TINYINT with range validation in code
+  communication_rating Int?        // Optional rating
+  delivery_rating      Int?        // Optional rating
+  product_quality_rating Int?      // Optional rating
+  review_text          String?
+  status               ReviewStatus @default(PENDING)
+  created_at           DateTime   @default(now())
+
+  // Relations
+  supplier             User       @relation("Supplier", fields: [supplier_id], references: [id], onDelete: Cascade)
+  customer             User       @relation("Customer", fields: [customer_id], references: [id], onDelete: Cascade)
+  order                Order?     @relation(fields: [order_id], references: [id], onDelete: SetNull)
+
+  @@index([supplier_id], name: "idx_supplier_id_supplier_rev")
+  @@index([customer_id], name: "idx_customer_id_supplier_rev")
+  @@index([rating], name: "idx_rating_supplier_rev")
+  @@unique([customer_id, supplier_id, order_id], name: "unique_customer_supplier_order")
 }
