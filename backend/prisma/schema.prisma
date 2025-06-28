@@ -42,6 +42,7 @@ model User {
   CustomerProfile CustomerProfile[] //customer relation
   SupplierProfile SupplierProfile[] //supplier
   UserAddress UserAddress[] //address of the user
+  Product Product[] //only done by a supplier
 }
 
 enum UserType {
@@ -201,6 +202,7 @@ model Commune {
 
   @@index([wilaya_id], name: "idx_wilaya_id")
   @@index([code], name: "idx_commune_code")
+  UserAddress UserAddress[] //cummne address
 }
 
 model UserAddress {
@@ -225,7 +227,7 @@ model UserAddress {
   wilaya          Wilaya     @relation(fields: [wilaya_id], references: [id])
   commune         Commune    @relation(fields: [commune_id], references: [id])
 
-  @@index([user_id], name: "idx_user_id")
+  @@index([user_id], name: "idx_user_address_id")
   @@index([wilaya_id, commune_id], name: "idx_wilaya_commune")
 }
 
@@ -233,4 +235,201 @@ enum AddressType {
   HOME
   WORK
   OTHER
+}
+
+model Category {
+  id              Int       @id @default(autoincrement())
+  parent_id       Int?
+  name_ar         String
+  name_fr         String
+  name_en         String
+  description_ar  String?
+  description_fr  String?
+  description_en  String?
+  icon            String?
+  image_url       String?
+  sort_order      Int       @default(0)
+  is_active       Boolean   @default(true)
+  seo_title       String?
+  seo_description String?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  // Self-referencing relation for parent category
+  parent          Category? @relation("CategoryParent", fields: [parent_id], references: [id], onDelete: SetNull)
+  children        Category[] @relation("CategoryParent")
+
+  @@index([parent_id], name: "idx_parent_id")
+  @@index([is_active], name: "idx_active")
+  @@index([sort_order], name: "idx_sort_order")
+  Product Product[] //product have a category
+}
+
+model Brand {
+  id             Int       @id @default(autoincrement())
+  name           String    @unique
+  description_ar String?
+  description_fr String?
+  description_en String?
+  logo_url       String?
+  website        String?
+  country_origin String?
+  is_active      Boolean   @default(true)
+  created_at     DateTime  @default(now())
+
+  @@index([name], name: "idx_name")
+  @@index([is_active], name: "idx_brand_active")
+  Product Product[] //product have a brand
+}
+
+model Product {
+  id                     BigInt     @id @default(autoincrement())
+  supplier_id            BigInt
+  category_id            Int
+  brand_id               Int?
+  sku                    String     @unique
+  barcode                String?
+  name_ar                String
+  name_fr                String
+  name_en                String
+  description_ar         String?
+  description_fr         String?
+  description_en         String?
+  short_description_ar   String?
+  short_description_fr   String?
+  short_description_en   String?
+  specifications         Json?
+  ingredients            String?
+  usage_instructions_ar  String?
+  usage_instructions_fr  String?
+  usage_instructions_en  String?
+  warnings_ar            String?
+  warnings_fr            String?
+  warnings_en            String?
+  requires_prescription  Boolean    @default(false)
+  prescription_type      PrescriptionType @default(none)
+  age_restriction        Int?
+  weight                 Decimal?
+  dimensions             String?
+  material               String?
+  sterile                Boolean    @default(false)
+  disposable             Boolean    @default(false)
+  expiry_tracking        Boolean    @default(false)
+  batch_tracking         Boolean    @default(false)
+  status                 ProductStatus @default(draft)
+  approval_status        ApprovalStatus @default(pending)
+  rejection_reason       String?
+  meta_title             String?
+  meta_description       String?
+  meta_keywords          String?
+  slug                   String     @unique
+  featured               Boolean    @default(false)
+  created_at             DateTime   @default(now())
+  updated_at             DateTime   @updatedAt
+
+  // Relations
+  supplier               User       @relation(fields: [supplier_id], references: [id], onDelete: Cascade)
+  category               Category   @relation(fields: [category_id], references: [id])
+  brand                  Brand?     @relation(fields: [brand_id], references: [id], onDelete: SetNull)
+
+  @@index([supplier_id], name: "idx_supplier_id")
+  @@index([category_id], name: "idx_category_id")
+  @@index([brand_id], name: "idx_brand_id")
+  @@index([sku], name: "idx_sku")
+  @@index([status], name: "idx_product_status")
+  @@index([approval_status], name: "idx_approval_status")
+  @@index([featured], name: "idx_featured")
+  @@index([requires_prescription], name: "idx_requires_prescription")
+
+  //full text index search can be done on queries
+  //not supported by postgresql
+  ProductImage ProductImage[] //product have an image
+}
+
+enum PrescriptionType {
+  none
+  otc
+  prescription
+  controlled
+}
+
+enum ProductStatus {
+  draft
+  pending
+  active
+  inactive
+  discontinued
+}
+
+enum ApprovalStatus {
+  pending
+  approved
+  rejected
+}
+
+model ProductImage {
+  id           BigInt     @id @default(autoincrement())
+  product_id   BigInt
+  image_url    String
+  alt_text     String?
+  sort_order   Int        @default(0)
+  is_primary   Boolean    @default(false)
+  created_at   DateTime   @default(now())
+
+  // Relations
+  product      Product    @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@index([product_id], name: "idx_product_id")
+}
+
+model ReviewImage {
+  id           BigInt    @id @default(autoincrement())
+  review_id    BigInt
+  image_url    String
+  alt_text     String?
+  sort_order   Int       @default(0)
+  created_at   DateTime  @default(now())
+
+  // Relation to ProductReview
+  review       ProductReview @relation(fields: [review_id], references: [id], onDelete: Cascade)
+
+  @@index([review_id], name: "idx_review_id")
+}
+
+model ProductReview {
+  id                  BigInt     @id @default(autoincrement())
+  product_id          BigInt
+  user_id             BigInt
+  order_id            BigInt?
+  rating              Int         // Simulating TINYINT with range validation in code
+  title               String?
+  review_text         String?
+  pros                String?
+  cons                String?
+  verified_purchase   Boolean     @default(false)
+  helpful_votes       Int         @default(0)
+  total_votes         Int         @default(0)
+  status              ReviewStatus @default(PENDING)
+  moderation_notes    String?
+  created_at          DateTime    @default(now())
+  updated_at          DateTime    @updatedAt
+
+  // Relations
+  product             Product     @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  user                User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  order               Order?      @relation(fields: [order_id], references: [id], onDelete: SetNull)
+
+  @@index([product_id], name: "idx_product_id")
+  @@index([user_id], name: "idx_user_id")
+  @@index([rating], name: "idx_rating")
+  @@index([status], name: "idx_status")
+  @@index([verified_purchase], name: "idx_verified_purchase")
+
+  @@unique([user_id, product_id, order_id?], name: "unique_user_product_order")
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
