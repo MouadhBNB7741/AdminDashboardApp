@@ -67,6 +67,10 @@ model User {
   ProductInventory ProductInventory[]
   ShoppingCart ShoppingCart[]
   OrderItem OrderItem[]
+  DeliveryPersonnel DeliveryPersonnel[]
+  Coupon Coupon[]
+  CouponUsage CouponUsage[]
+  PromotionalCampaign PromotionalCampaign[]
 }
 
 enum UserType {
@@ -523,6 +527,8 @@ model Order {
   PaymentMethod PaymentMethod[]
   Payment Payment[]
   DeliveryCompany DeliveryCompany[]
+  Delivery Delivery[]
+  CouponUsage CouponUsage[]
 }
 
 enum OrderStatus {
@@ -1410,6 +1416,8 @@ model DeliveryCompany {
 
   @@index([name], name: "idx_name_delivery_company")
   @@index([is_active], name: "idx_delivery_company_active")
+  DeliveryPersonnel DeliveryPersonnel[]
+  Delivery Delivery[]
 }
 
 model DeliveryPersonnel {
@@ -1437,6 +1445,7 @@ model DeliveryPersonnel {
   @@index([delivery_company_id], name: "idx_delivery_company")
   @@index([is_active], name: "idx_delivery_personnel_active")
   @@unique([user_id], name: "unique_user_delivery_personnel")
+  Delivery Delivery[]
 }
 
 enum VehicleType {
@@ -1444,4 +1453,199 @@ enum VehicleType {
   CAR
   VAN
   TRUCK
+}
+
+model Delivery {
+  id                    BigInt      @id @default(autoincrement())
+  order_id              BigInt
+  delivery_company_id   Int?
+  delivery_person_id    BigInt?
+  tracking_number       String?     @unique
+  status                DeliveryStatus @default(PENDING)
+  
+  // Pickup Information
+  pickup_address        String?
+  pickup_phone          String?
+  pickup_date           DateTime?
+  pickup_time_slot      String?
+  actual_pickup_time    DateTime?
+
+  // Delivery Information
+  delivery_address      String?
+  delivery_phone        String?
+  delivery_date         DateTime?
+  delivery_time_slot    String?
+  actual_delivery_time  DateTime?
+
+  // Delivery Details
+  recipient_name        String?
+  delivery_notes        String?
+  delivery_proof_url    String?
+
+  // Costs
+  delivery_fee          Decimal
+  insurance_amount      Decimal     @default(0.00)
+  cod_amount            Decimal     @default(0.00)
+
+  // Tracking
+  current_location_lat  Decimal?
+  current_location_lng  Decimal?
+  estimated_delivery_time DateTime?
+
+  created_at            DateTime    @default(now())
+  updated_at            DateTime    @updatedAt
+
+  // Relations
+  order                 Order       @relation(fields: [order_id], references: [id])
+  delivery_company      DeliveryCompany? @relation(fields: [delivery_company_id], references: [id])
+  delivery_personnel    DeliveryPersonnel? @relation(fields: [delivery_person_id], references: [id])
+
+  @@index([order_id], name: "idx_order_id_delivery")
+  @@index([tracking_number], name: "idx_tracking_number")
+  @@index([status], name: "idx_status_delivery")
+  @@index([delivery_person_id], name: "idx_delivery_person")
+  DeliveryTracking DeliveryTracking[]
+}
+
+enum DeliveryStatus {
+  PENDING
+  PICKED_UP
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  FAILED
+  RETURNED
+}
+
+model DeliveryTracking {
+  id          BigInt      @id @default(autoincrement())
+  delivery_id BigInt
+  status      DeliveryStatus
+  location    String?
+  latitude    Decimal?
+  longitude   Decimal?
+  notes       String?
+  created_at  DateTime    @default(now())
+
+  // Relation to Delivery
+  delivery    Delivery    @relation(fields: [delivery_id], references: [id], onDelete: Cascade)
+
+  @@index([delivery_id], name: "idx_delivery_id_tracking")
+  @@index([status], name: "idx_status_tracking")
+  @@index([created_at], name: "idx_created_at_tracking")
+}
+
+model Coupon {
+  id                       BigInt      @id @default(autoincrement())
+  code                     String      @unique
+  name                     String
+  description                String?
+  type                     CouponType
+  value                    Decimal
+  minimum_order_amount     Decimal     @default(0.00)
+  maximum_discount_amount  Decimal?
+  usage_limit              Int?
+  usage_limit_per_user     Int         @default(1)
+  used_count               Int         @default(0)
+  
+  // Validity
+  valid_from               DateTime    @default(now())
+  valid_until              DateTime?
+
+  // Restrictions
+  applicable_to_categories Json?        // Array of category IDs
+  applicable_to_products   Json?       // Array of product IDs
+  applicable_to_user_types Json?       // Array of user types (e.g., customer, supplier)
+  exclude_sale_items       Boolean     @default(false)
+
+  is_active                Boolean     @default(true)
+  created_by               BigInt?
+  created_at               DateTime    @default(now())
+  updated_at               DateTime    @updatedAt
+
+  // Relation
+  creator                  User?       @relation(fields: [created_by], references: [id])
+
+  @@index([code], name: "idx_coupon_code")
+  @@index([valid_from, valid_until], name: "idx_valid_dates")
+  @@index([is_active], name: "idx_coupon_active")
+  CouponUsage CouponUsage[]
+}
+
+enum CouponType {
+  percentage
+  fixed_amount
+  free_shipping
+}
+
+model CouponUsage {
+  id              BigInt     @id @default(autoincrement())
+  coupon_id       BigInt
+  user_id         BigInt
+  order_id        BigInt
+  discount_amount Decimal
+  used_at         DateTime   @default(now())
+
+  // Relations
+  coupon          Coupon      @relation(fields: [coupon_id], references: [id])
+  user            User        @relation(fields: [user_id], references: [id])
+  order           Order       @relation(fields: [order_id], references: [id])
+
+  @@index([coupon_id], name: "idx_coupon_id_usage")
+  @@index([user_id], name: "idx_user_id_usage")
+  @@index([order_id], name: "idx_order_id_usage")
+}
+
+model PromotionalCampaign {
+  id                    BigInt      @id @default(autoincrement())
+  name                  String
+  description           String?
+  type                  CampaignType
+  
+  // Discount Configuration
+  discount_type         DiscountType
+  discount_value        Decimal
+  minimum_quantity      Int          @default(1)
+  minimum_amount        Decimal      @default(0.00)
+
+  // Applicability
+  applicable_to_categories Json?
+  applicable_to_products   Json?
+  applicable_to_brands     Json?
+  applicable_to_user_types  Json?
+
+  // Validity
+  start_date             DateTime
+  end_date               DateTime
+
+  // Limits
+  usage_limit            Int?
+  usage_limit_per_user   Int?
+  used_count             Int          @default(0)
+
+  // Status & Metadata
+  is_active              Boolean      @default(true)
+  created_by             BigInt
+  created_at             DateTime     @default(now())
+  updated_at             DateTime     @updatedAt
+
+  // Relations
+  creator                User         @relation(fields: [created_by], references: [id])
+
+  @@index([type], name: "idx_campaign_type")
+  @@index([start_date, end_date], name: "idx_campaign_dates")
+  @@index([is_active], name: "idx_campaign_active")
+}
+
+enum CampaignType {
+  SEASONAL
+  FLASH_SALE
+  BULK_DISCOUNT
+  NEW_CUSTOMER
+  LOYALTY
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
 }
