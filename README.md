@@ -15,6 +15,7 @@
 - ex: DATABASE_URL="postgresql://user:password@host:port/databaseName?schema=public" //can be setup with mysql, sqlite and mongodb
 - run npx prisma db pull to test connection
 - run npx prisma generate to generate the db
+- to better visualize the db run npx prisma studio
 
 # To do :
 
