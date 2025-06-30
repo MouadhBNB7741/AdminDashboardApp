@@ -14,8 +14,7 @@ import {
   forgotPassword,
   resetPassword,
 } from "../controllers/UserController";
-const authMiddleware = require("../middleware/authMiddleware");
-const roleMiddleware = require("../middleware/roleMiddleware");
+import { authMiddleware, roleMiddleware } from "../middlewares/User";
 
 const userRouter = Router();
 

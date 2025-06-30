@@ -7,7 +7,7 @@ import {
   deleteAddressById,
   setDefaultAddress,
 } from "../controllers/addressController";
-import authMiddleware from "../middleware/authMiddleware";
+import { authMiddleware } from "../middlewares/User";
 
 const addressRouter = Router();
 

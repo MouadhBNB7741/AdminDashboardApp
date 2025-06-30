@@ -27,7 +27,7 @@ Get All Addresses for a User //
 Get Address by ID //
 Update Address by ID //
 Delete Address by ID //
-Set Default Address for User
+Set Default Address for User //
 -------------------------------------------------
 Location Management (Wilaya & Commune)
 Get All Wilayas
