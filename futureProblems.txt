@@ -6,3 +6,11 @@ any ways if app ever scale past that number just replace the parseInt functions 
 he has no predefined maximum limit
 
 why i did not do it just because working with Number type is better
+
+middleware can be updated
+
+packages conflict
+
+env 
+
+the apis them selves

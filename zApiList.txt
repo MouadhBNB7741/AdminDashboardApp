@@ -22,11 +22,11 @@ Update Supplier Profile by User ID //
 Delete Supplier Profile by User ID //
 -------------------------------------------------
 Address Management
-Add User Address
-Get All Addresses for a User
-Get Address by ID
-Update Address by ID
-Delete Address by ID
+Add User Address //
+Get All Addresses for a User //
+Get Address by ID //
+Update Address by ID //
+Delete Address by ID //
 Set Default Address for User
 -------------------------------------------------
 Location Management (Wilaya & Commune)
