@@ -3,7 +3,12 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
-import { userRouter, profileRouter, addressRouter } from "./Routes/exporter";
+import {
+  userRouter,
+  profileRouter,
+  addressRouter,
+  locationRouter,
+} from "./Routes/exporter";
 
 dotenv.config();
 
@@ -22,6 +27,7 @@ if (process.env.NODE_ENV !== "test") {
 app.use("/user", userRouter);
 app.use("/profile", profileRouter);
 app.use("/address", addressRouter);
+app.use("/location", locationRouter);
 
 app.listen(8080, () => {
   console.log("Mouadh in the back says Hi!");

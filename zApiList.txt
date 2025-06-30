@@ -30,17 +30,17 @@ Delete Address by ID //
 Set Default Address for User //
 -------------------------------------------------
 Location Management (Wilaya & Commune)
-Get All Wilayas
-Get Wilaya by ID
-Create Wilaya
-Update Wilaya by ID
-Delete Wilaya by ID
-Get All Communes
-Get Commune by ID
-Create Commune
-Update Commune by ID
-Delete Commune by ID
-Get Communes by Wilaya ID
+Get All Wilayas //
+Get Wilaya by ID //
+Create Wilaya //
+Update Wilaya by ID //
+Delete Wilaya by ID //
+Get All Communes //
+Get Commune by ID //
+Create Commune //
+Update Commune by ID //
+Delete Commune by ID //
+Get Communes by Wilaya ID //
 -------------------------------------------------
 Product Management
 Create Product
