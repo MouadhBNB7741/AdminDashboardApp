@@ -1,5 +1,5 @@
 User Management
-Create User //
+Create User And register //
 Get All Users //
 Get User by ID //
 Update User by ID //
