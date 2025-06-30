@@ -1,0 +1,197 @@
+User Management
+Create User
+Get All Users
+Get User by ID
+Update User by ID
+Delete User by ID
+Login User
+Verify Email
+Send Password Reset Token
+Reset Password
+Enable/Disable 2FA for User
+Verify 2FA Code
+-------------------------------------------------
+User Profile Management
+Create Customer Profile
+Get Customer Profile by User ID
+Update Customer Profile by User ID
+Delete Customer Profile by User ID
+Create Supplier Profile
+Get Supplier Profile by User ID
+Update Supplier Profile by User ID
+Delete Supplier Profile by User ID
+-------------------------------------------------
+Address Management
+Add User Address
+Get All Addresses for a User
+Get Address by ID
+Update Address by ID
+Delete Address by ID
+Set Default Address for User
+-------------------------------------------------
+Location Management (Wilaya & Commune)
+Get All Wilayas
+Get Wilaya by ID
+Create Wilaya
+Update Wilaya by ID
+Delete Wilaya by ID
+Get All Communes
+Get Commune by ID
+Create Commune
+Update Commune by ID
+Delete Commune by ID
+Get Communes by Wilaya ID
+-------------------------------------------------
+Product Management
+Create Product
+Get All Products
+Get Product by ID
+Update Product by ID
+Delete Product by ID
+Search Products
+Filter Products by Category
+Filter Products by Brand
+Upload Product Images
+Get Images for a Product
+Delete Product Image
+-------------------------------------------------
+Category Management
+Create Category
+Get All Categories
+Get Category by ID
+Update Category by ID
+Delete Category by ID
+Get Subcategories of a Parent Category
+-------------------------------------------------
+Brand Management
+Create Brand
+Get All Brands
+Get Brand by ID
+Update Brand by ID
+Delete Brand by ID
+Product Variants & Pricing
+Create Product Variant
+Get All Variants of a Product
+Get Variant by ID
+Update Product Variant by ID
+Delete Product Variant by ID
+Set Pricing for Product or Variant
+Get Pricing for Product or Variant
+Update Pricing for Product or Variant
+-------------------------------------------------
+Inventory Management
+Update Inventory for Product or Variant
+Get Inventory Status for Product or Variant
+Track Inventory Changes
+-------------------------------------------------
+Order Management
+Create Order
+Get All Orders
+Get Order by ID
+Update Order Status
+Cancel Order
+Get Orders by User ID
+Get Order Items
+Update Order Item Status
+Get Order Details
+-------------------------------------------------
+Payment Management
+Process Payment
+Get Payment Methods
+Get Payment Details by Order ID
+Refund Payment
+Update Payment Status
+-------------------------------------------------
+Delivery Management
+Assign Delivery Company to Order
+Track Delivery by Tracking Number
+Update Delivery Status
+Get Deliveries by User ID
+Get Delivery Personnel by Delivery Company
+Create Delivery Personnel
+Update Delivery Personnel Location
+-------------------------------------------------
+Review & Rating Management
+Submit Product Review
+Get Reviews for a Product
+Get Review by ID
+Update Product Review
+Delete Product Review
+Vote on Product Review (Helpful/Not Helpful)
+Get Supplier Reviews
+Submit Supplier Review
+-------------------------------------------------
+Prescription Management
+Upload Prescription
+Get Prescriptions by User ID
+Verify Prescription
+Get Prescription by ID
+Match Prescription Item with Product
+Reject Prescription
+-------------------------------------------------
+Notification Management
+Send Notification
+Get Notifications for User
+Mark Notification as Read
+Delete Notification
+Update Notification Preferences
+Get Notification Preferences
+-------------------------------------------------
+Support Ticket Management
+Create Support Ticket
+Get Support Tickets by User ID
+Get Support Ticket by ID
+Update Support Ticket Status
+Assign Support Ticket to Agent
+Resolve Support Ticket
+Leave Message on Support Ticket
+Get Messages for a Support Ticket
+-------------------------------------------------
+Live Chat Management
+Start Live Chat Session
+End Live Chat Session
+Send Live Chat Message
+Get Chat Messages by Session ID
+Rate Live Chat Session
+Activity Logging
+Log User Activity
+Get User Activity Logs
+Log Admin Activity
+Get Admin Activity Logs
+Log Error
+Get Error Logs
+Search & Analytics
+Record Search Query
+Get Popular Search Queries
+Track Page View
+Get Page View Statistics
+Coupon & Promotions
+Create Coupon
+Get Coupons
+Apply Coupon to Order
+Get Active Promotional Campaigns
+Create Promotional Campaign
+Update Promotional Campaign
+Delete Promotional Campaign
+-------------------------------------------------
+Tax Management
+Create Tax Rule
+Get Tax Rules
+Update Tax Rule
+Delete Tax Rule
+System Settings
+Update System Setting
+Get System Setting by Key
+Get All System Settings
+-------------------------------------------------
+Email & SMS Management
+Queue Email
+Queue SMS
+Get Email Queue Status
+Get SMS Queue Status
+-------------------------------------------------
+Delivery Personnel Management
+Register Delivery Personnel
+Update Delivery Personnel Profile
+Get Delivery Personnel by ID
+Deactivate Delivery Personnel
