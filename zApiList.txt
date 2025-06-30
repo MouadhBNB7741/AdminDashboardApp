@@ -1,15 +1,15 @@
 User Management
-Create User
-Get All Users
-Get User by ID
-Update User by ID
-Delete User by ID
-Login User
-Verify Email
-Send Password Reset Token
-Reset Password
-Enable/Disable 2FA for User
-Verify 2FA Code
+Create User //
+Get All Users //
+Get User by ID //
+Update User by ID //
+Delete User by ID //
+Login User //
+Verify Email // 
+Send Password Reset Token //
+Reset Password //
+Enable/Disable 2FA for User // 
+Verify 2FA Code //
 -------------------------------------------------
 User Profile Management
 Create Customer Profile

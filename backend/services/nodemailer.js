@@ -15,7 +15,7 @@ const transporter = createTransport({
   },
 });
 
-const sendEmail = async (to, subject, htmlContent) => {
+export const sendEmail = async (to, subject, htmlContent) => {
   const mailOptions = {
     from: `"Hamri Medical App" <${process.env.EMAIL_USER}>`,
     to,
@@ -32,5 +32,3 @@ const sendEmail = async (to, subject, htmlContent) => {
     throw error;
   }
 };
-
-export default { sendEmail };
