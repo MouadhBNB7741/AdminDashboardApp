@@ -16,10 +16,10 @@ Create Customer Profile //
 Get Customer Profile by User ID //
 Update Customer Profile by User ID //
 Delete Customer Profile by User ID //
-Create Supplier Profile
-Get Supplier Profile by User ID
-Update Supplier Profile by User ID
-Delete Supplier Profile by User ID
+Create Supplier Profile //
+Get Supplier Profile by User ID //
+Update Supplier Profile by User ID //
+Delete Supplier Profile by User ID //
 -------------------------------------------------
 Address Management
 Add User Address
