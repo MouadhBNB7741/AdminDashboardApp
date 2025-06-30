@@ -1,0 +1,8 @@
+All missing staff are marked as TODO
+if ever forget just search TODO across the files
+
+there is a problem when app largly scale (more then 9,007,199,254,740,991 users since js store Number in 64 bit)
+any ways if app ever scale past that number just replace the parseInt functions with BigInt since 
+he has no predefined maximum limit
+
+why i did not do it just because working with Number type is better

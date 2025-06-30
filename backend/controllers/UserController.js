@@ -22,7 +22,7 @@ const generateToken = (userId) => {
   });
 };
 
-//TODO add logs as well
+//TODO add logs as well and rate limiter for forget password
 export const registerUser = async (req, res) => {
   try {
     const parsed = registerSchema.parse(req.body);
