@@ -43,9 +43,9 @@ Delete Commune by ID //
 Get Communes by Wilaya ID //
 -------------------------------------------------
 Product Management
-Create Product
-Get All Products
-Get Product by ID
+Create Product //
+Get All Products //
+Get Product by ID //
 Update Product by ID
 Delete Product by ID
 Search Products
