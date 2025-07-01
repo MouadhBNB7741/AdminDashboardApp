@@ -69,15 +69,15 @@ Get All Brands //
 Get Brand by ID //
 Update Brand by ID //
 Delete Brand by ID //
-Product Variants & Pricing
-Create Product Variant
-Get All Variants of a Product
-Get Variant by ID
-Update Product Variant by ID
-Delete Product Variant by ID
-Set Pricing for Product or Variant
-Get Pricing for Product or Variant
-Update Pricing for Product or Variant
+Product Variants & Pricing //
+Create Product Variant //
+Get All Variants of a Product //
+Get Variant by ID //
+Update Product Variant by ID //
+Delete Product Variant by ID //
+Set Pricing for Product or Variant //
+Get Pricing for Product or Variant //
+Update Pricing for Product or Variant //
 -------------------------------------------------
 Inventory Management
 Update Inventory for Product or Variant

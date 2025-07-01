@@ -10,6 +10,7 @@ import {
   locationRouter,
   productRouter,
   categoryRouter,
+  brandRouter,
 } from "./Routes/exporter";
 import path from "path";
 
@@ -36,6 +37,7 @@ app.use("/address", addressRouter);
 app.use("/location", locationRouter);
 app.use("/product", productRouter);
 app.use("/category", categoryRouter);
+app.use("/brand", brandRouter);
 
 app.listen(8081, () => {
   console.log("Mouadh in the back says Hi!");
