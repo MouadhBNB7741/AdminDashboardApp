@@ -56,12 +56,12 @@ Get Images for a Product //
 Delete Product Image //
 -------------------------------------------------
 Category Management
-Create Category
-Get All Categories
-Get Category by ID
-Update Category by ID
-Delete Category by ID
-Get Subcategories of a Parent Category
+Create Category //
+Get All Categories //
+Get Category by ID //
+Update Category by ID //
+Delete Category by ID //
+Get Subcategories of a Parent Category //
 -------------------------------------------------
 Brand Management
 Create Brand
