@@ -5,6 +5,7 @@ import {
   updateCommuneSchema,
   updateWilayaSchema,
 } from "../validators/Location";
+import * as zod from "zod";
 
 export const getAllWilayas = async (req, res) => {
   try {

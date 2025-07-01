@@ -46,14 +46,14 @@ Product Management
 Create Product //
 Get All Products //
 Get Product by ID //
-Update Product by ID
-Delete Product by ID
-Search Products
-Filter Products by Category
-Filter Products by Brand
-Upload Product Images
-Get Images for a Product
-Delete Product Image
+Update Product by ID //
+Delete Product by ID //
+Search Products //
+Filter Products by Category //
+Filter Products by Brand //
+Upload Product Images // 
+Get Images for a Product //
+Delete Product Image //
 -------------------------------------------------
 Category Management
 Create Category

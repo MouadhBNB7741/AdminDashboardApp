@@ -2,8 +2,10 @@ import prisma from "../services/prisma";
 import {
   createProductSchema,
   updateProductSchema,
-  uploadProductImagesSchema,
 } from "../validators/Product";
+import path from "path";
+import * as zod from "zod";
+import * as fs from "fs";
 
 export const createProduct = async (req, res) => {
   try {
@@ -248,22 +250,30 @@ export const filterProductsByBrand = async (req, res) => {
   }
 };
 
-//TODO need to be updated
 export const uploadProductImages = async (req, res) => {
   try {
     const productId = parseInt(req.params.productId);
-    const { images } = req.body;
 
-    const parsed = uploadProductImagesSchema.parse({
-      product_id: productId,
-      images,
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
     });
 
-    const imageRecords = parsed.images.map((url) => ({
-      product_id: parsed.product_id,
-      image_url: url,
-      alt_text: `Product ${parsed.product_id} image`,
-    }));
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No files uploaded" });
+    }
+
+    const imageRecords = req.files.map((file) => {
+      const imageUrl = `/uploads/product-images/${file.filename}`;
+      return {
+        product_id: productId,
+        image_url: imageUrl,
+        is_primary: false,
+      };
+    });
 
     const uploadedImages = await prisma.productImage.createMany({
       imageRecords,
@@ -272,11 +282,9 @@ export const uploadProductImages = async (req, res) => {
     res.status(201).json({
       message: "Images uploaded successfully",
       count: uploadedImages.count,
+      images: imageRecords,
     });
   } catch (error) {
-    if (error instanceof zod.ZodError) {
-      return res.status(400).json({ error: error.errors });
-    }
     console.error("Error uploading product images:", error);
     res.status(500).json({ error: "Server error" });
   }
@@ -305,7 +313,6 @@ export const getProductImages = async (req, res) => {
   }
 };
 
-//TODO needs storage
 export const deleteProductImage = async (req, res) => {
   try {
     const imageId = parseInt(req.params.imageId);
@@ -316,6 +323,18 @@ export const deleteProductImage = async (req, res) => {
 
     if (!image) {
       return res.status(404).json({ error: "Image not found" });
+    }
+
+    const imagePath = path.join(
+      __dirname,
+      "../../uploads/product-images",
+      path.basename(image.image_url)
+    );
+
+    try {
+      fs.unlink(imagePath);
+    } catch (err) {
+      console.warn("File not found locally, skipping deletion");
     }
 
     await prisma.productImage.delete({

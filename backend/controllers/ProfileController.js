@@ -5,6 +5,7 @@ import {
   updateCustomerProfileSchema,
   updateSupplierProfileSchema,
 } from "../validators/Profile";
+import * as zod from "zod";
 
 export const createCustomerProfile = async (req, res) => {
   try {

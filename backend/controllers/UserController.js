@@ -15,6 +15,7 @@ import {
 } from "../validators/User";
 import { randomBytes } from "crypto";
 import speakeasy from "speakeasy";
+import * as zod from "zod";
 
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {

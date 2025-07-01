@@ -51,8 +51,3 @@ export const createProductSchema = zod.object({
 });
 
 export const updateProductSchema = createProductSchema.partial();
-
-export const uploadProductImagesSchema = zod.object({
-  product_id: zod.number().int(),
-  images: zod.array(zod.string()),
-});
