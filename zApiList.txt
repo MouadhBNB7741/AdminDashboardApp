@@ -64,11 +64,11 @@ Delete Category by ID //
 Get Subcategories of a Parent Category //
 -------------------------------------------------
 Brand Management
-Create Brand
-Get All Brands
-Get Brand by ID
-Update Brand by ID
-Delete Brand by ID
+Create Brand //
+Get All Brands //
+Get Brand by ID //
+Update Brand by ID //
+Delete Brand by ID //
 Product Variants & Pricing
 Create Product Variant
 Get All Variants of a Product
