@@ -5,3 +5,4 @@ export { default as locationRouter } from "./LocationRoute";
 export { default as productRouter } from "./ProductRoute";
 export { default as categoryRouter } from "./CategoryRoute";
 export { default as brandRouter } from "./BrandRoute";
+export { default as inventoryRouter } from "./InventoryRoute";

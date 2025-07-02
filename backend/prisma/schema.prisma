@@ -71,6 +71,7 @@ model User {
   Coupon Coupon[]
   CouponUsage CouponUsage[]
   PromotionalCampaign PromotionalCampaign[]
+  InventoryLog InventoryLog[]
 }
 
 enum UserType {
@@ -382,6 +383,7 @@ model Product {
   ProductInventory ProductInventory[]
   ShoppingCart ShoppingCart[]
   OrderItem OrderItem[]
+  InventoryLog InventoryLog[]
 }
 
 enum PrescriptionType {
@@ -1195,6 +1197,7 @@ model ProductVariant {
   ProductInventory ProductInventory[]
   ShoppingCart ShoppingCart[]
   OrderItem OrderItem[]
+  InventoryLog InventoryLog[]
 }
 
 model ProductPricing {
@@ -1648,4 +1651,23 @@ enum CampaignType {
 enum DiscountType {
   PERCENTAGE
   FIXED_AMOUNT
+}
+
+model InventoryLog {
+  id               BigInt    @id @default(autoincrement())
+  product_id       BigInt
+  variant_id       BigInt?
+  supplier_id      BigInt
+  change_quantity  Int
+  reason           String?
+  created_at       DateTime  @default(now())
+
+  // Relations
+  product          Product   @relation(fields: [product_id], references: [id])
+  variant          ProductVariant? @relation(fields: [variant_id], references: [id])
+  supplier         User      @relation(fields: [supplier_id], references: [id])
+
+  @@index([product_id], name: "idx_product_inventory_log")
+  @@index([variant_id], name: "idx_variant_inventory_log")
+  @@index([supplier_id], name: "idx_supplier_inventory_log")
 }
