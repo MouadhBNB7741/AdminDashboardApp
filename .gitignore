@@ -1,0 +1,4 @@
+/DB
+/backend/.env
+/backend/generated
+/backend/node_modules

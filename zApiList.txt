@@ -86,6 +86,7 @@ Track Inventory Changes
 -------------------------------------------------
 Order Management
 Create Order
+Create Order
 Get All Orders
 Get Order by ID
 Update Order Status
